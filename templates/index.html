@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Salary Predictor</title>
+</head>
+<body>
+
+<h2>Salary Prediction App</h2>
+
+<form method="POST">
+
+Experience:
+<input type="number" name="experience" required><br><br>
+
+Age:
+<input type="number" name="age" required><br><br>
+
+<input type="submit" value="Predict Salary">
+
+</form>
+
+{% if prediction %}
+<h3>Predicted Salary: ₹ {{ prediction }}</h3>
+{% endif %}
+
+</body>
+</html>
