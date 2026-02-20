@@ -48,3 +48,10 @@ HTML
 Pandas
 NumPy
 Pickle
+
+Salary Prediction ML Web App
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Flask](https://img.shields.io/badge/Flask-WebApp-green)
+![Machine Learning](https://img.shields.io/badge/ML-LinearRegression-orange)
+![Status](https://img.shields.io/badge/Status-Completed-success)
