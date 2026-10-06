@@ -1,4 +1,4 @@
-server {
+ server {
     listen 80;
     listen [::]:80;
 
@@ -72,4 +72,5 @@ openssl req -x509 -nodes -days 365 \
 
 
 
+sudo cp /home/vishal/jk-dashboard.crt /etc/nginx/ssl/jk-dashboard.crt
 
