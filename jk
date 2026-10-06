@@ -62,6 +62,13 @@ server {
 
 
 
+openssl req -x509 -nodes -days 365 \
+-newkey rsa:2048 \
+-keyout jk-dashboard.key \
+-out jk-dashboard.crt \
+-subj "/C=IN/ST=Karnataka/L=Mysuru/O=JK Tyre/OU=R&D/CN=192.168.101.197" \
+-addext "subjectAltName=IP:192.168.101.197"
+
 
 
 
