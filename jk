@@ -1,4 +1,4 @@
- server {
+server {
     listen 80;
     listen [::]:80;
 
@@ -14,34 +14,10 @@
     }
 }
 
-sudo openssl req -x509 -nodes -days 365 \
--newkey rsa:2048 \
--keyout /etc/nginx/ssl/jk-dashboard.key \
--out /etc/nginx/ssl/jk-dashboard.crt \
--subj "/C=IN/ST=Karnataka/L=Mysuru/O=JK Tyre/OU=R&D/CN=192.168.101.197" \
--addext "subjectAltName=IP:192.168.101.197"
-
-
-
-/etc/nginx/ssl/jk-dashboard.crt
-/etc/nginx/ssl/jk-dashboard.key
-
-
-
-sudo nano /etc/nginx/sites-available/jk-dashboard
-
-
-
-
-server {
-    listen 80;
-    server_name 192.168.101.197;
-
-    return 301 https://$host$request_uri;
-}
-
 server {
     listen 443 ssl;
+    listen [::]:443 ssl;
+
     server_name 192.168.101.197;
 
     ssl_certificate /etc/nginx/ssl/jk-dashboard.crt;
@@ -54,30 +30,5 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
     }
 }
-
-
-
-openssl req -x509 -nodes -days 365 \
--newkey rsa:2048 \
--keyout jk-dashboard.key \
--out jk-dashboard.crt \
--subj "/C=IN/ST=Karnataka/L=Mysuru/O=JK Tyre/OU=R&D/CN=192.168.101.197" \
--addext "subjectAltName=IP:192.168.101.197"
-
-
-
-
-sudo cp /home/vishal/jk-dashboard.crt /etc/nginx/ssl/jk-dashboard.crt
-sudo cp /home/vishal/jk-dashboard.key /etc/nginx/ssl/jk-dashboard.key
-
-
-
-sudo chmod 644 /etc/nginx/ssl/jk-dashboard.crt
-sudo chmod 600 /etc/nginx/ssl/jk-dashboard.key
-
-
