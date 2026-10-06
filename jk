@@ -73,4 +73,11 @@ openssl req -x509 -nodes -days 365 \
 
 
 sudo cp /home/vishal/jk-dashboard.crt /etc/nginx/ssl/jk-dashboard.crt
+sudo cp /home/vishal/jk-dashboard.key /etc/nginx/ssl/jk-dashboard.key
+
+
+
+sudo chmod 644 /etc/nginx/ssl/jk-dashboard.crt
+sudo chmod 600 /etc/nginx/ssl/jk-dashboard.key
+
 
