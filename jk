@@ -1343,10 +1343,40 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 function formatMonthLabel(value) {
-  const m = String(value || "").match(/^(\d{4})-(\d{2})$/);
-  if (!m) return String(value || "");
-  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  return names[Number(m[2]) - 1] + "-" + m[1].slice(2);
+  const text = String(value || "").trim();
+
+  /*
+     The backend may receive workbook sheet names such as:
+       1-01, 1-02, 1-03
+     Pandas can represent these as:
+       0001-01, 0001-02, 0001-03
+
+     Keep the original value for matching, but display a proper
+     month name + year to the user.
+  */
+  const m = text.match(/^(\\d{4})-(\\d{2})$/);
+  if (!m) return text;
+
+  const monthNumber = Number(m[2]);
+  if (monthNumber < 1 || monthNumber > 12) return text;
+
+  const names = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  let year = Number(m[1]);
+
+  /*
+     If the workbook sheet name was interpreted as year 0001
+     (for example 1-01 -> 0001-01), use the current report year
+     for display. This does NOT change the underlying month key.
+  */
+  if (year <= 1) {
+    year = new Date().getFullYear();
+  }
+
+  return names[monthNumber - 1] + " " + year;
 }
 function signed(v, d = 2) {
   const x = Number(v);
