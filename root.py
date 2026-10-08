@@ -413,7 +413,11 @@ def prepare_supplied_dataframe(df, month_label):
         df[adherence_col].map(clean_number) if adherence_col is not None else np.nan
     )
 
-    out["month"] = df[month_col].map(parse_month_value) if month_col is not None else parse_month_value(month_label)
+    # The workbook is organized month-wise by sheet. Use the sheet name as the
+    # authoritative month label (for example, sheet "1-01" -> month "1-01").
+    # This prevents an empty/differently formatted Month column from removing
+    # the month information on Ubuntu.
+    out["month"] = parse_month_value(month_label)
 
 
 
@@ -593,11 +597,11 @@ def build_size_summary(df):
 
     work["month_sort"] = work["month"].fillna("").astype(str)
 
-    work["month_period"] = pd.to_datetime(work["month_sort"] + "-01", errors="coerce")
+    work["month_order"] = work["month_sort"].map(month_sort_value)
 
     work = work.sort_values(
 
-        ["sku_sort", "month_period", "month_sort", "source_row"],
+        ["sku_sort", "month_order", "month_sort", "source_row"],
 
         kind="stable", na_position="last"
 
@@ -687,11 +691,11 @@ def build_sku_month_summary(df):
 
     work["month_sort"] = work["month"].fillna("").astype(str)
 
-    work["month_period"] = pd.to_datetime(work["month_sort"] + "-01", errors="coerce")
+    work["month_order"] = work["month_sort"].map(month_sort_value)
 
     work = work.sort_values(
 
-        ["sku_sort", "month_period", "month_sort", "source_row"],
+        ["sku_sort", "month_order", "month_sort", "source_row"],
 
         kind="stable",
 
@@ -1333,7 +1337,11 @@ def analyze():
 
         valid = data[data["valid"]].copy()
 
-
+        print("\n========== MONTH/SKU DEBUG ==========")
+        print("MONTH VALUES:", valid["month"].dropna().unique().tolist())
+        print("SKU VALUES:", valid["sku"].dropna().unique().tolist())
+        print("VALID ROWS:", len(valid))
+        print("=====================================\n")
 
         if valid.empty:
             diagnostics = []
@@ -1367,7 +1375,8 @@ def analyze():
 
         sku_month_summary, duplicate_sku_month_rows = build_sku_month_summary(valid)
 
-
+        print("SKU MONTH SUMMARY ROWS:", len(sku_month_summary))
+        print("SKU MONTH SAMPLE:", sku_month_summary[:10])
 
         # Dedicated SKU Monthly Running Weight graph payload.
 
