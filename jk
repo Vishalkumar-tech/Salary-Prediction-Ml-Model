@@ -585,6 +585,61 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 .filter-button button{width:100%;padding:13px 28px;}
 
 /* =====================================================
+   TOLERANCE CONTROL
+===================================================== */
+.tolerance-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+  margin:0 0 22px;
+  padding:16px 20px;
+  background:linear-gradient(180deg, #fbfdff 0%, #f7fafd 100%);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+}
+.tolerance-label{
+  display:flex;align-items:center;gap:9px;
+  font-size:11.5px;font-weight:800;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--muted);
+  flex:0 0 auto;
+}
+.tolerance-label svg{
+  width:14px;height:14px;color:var(--jk-red);flex:0 0 auto;
+}
+.tolerance-wrap{
+  display:flex;gap:6px;flex-wrap:wrap;
+  flex:1 1 auto;justify-content:flex-end;
+}
+.tol-btn{
+  flex:0 0 auto;
+  padding:9px 14px;
+  font-family:inherit;
+  font-size:12.5px;font-weight:700;letter-spacing:.2px;
+  color:var(--slate);
+  background:#ffffff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  cursor:pointer;
+  transition:all .18s ease;
+  min-width:54px;
+  text-align:center;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.tol-btn:hover:not(.active){
+  border-color:var(--line-strong);
+  background:rgba(227,6,19,.04);
+  color:var(--jk-red-deep);
+  transform:translateY(-1px);
+}
+.tol-btn.active{
+  color:#ffffff;
+  background:linear-gradient(135deg, var(--jk-red), var(--jk-red-light));
+  border-color:var(--jk-red);
+  box-shadow:0 6px 14px -6px rgba(227,6,19,.65);
+  transform:translateY(-1px);
+}
+.tol-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(227,6,19,.22);}
+
+/* =====================================================
    SKU SELECTED BAR
 ===================================================== */
 .sku-bar{
@@ -859,6 +914,8 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   .chart-wrapper{height:380px;}
   .chart-wrapper.tall{height:420px;}
   .kpi-value{font-size:21px;}
+  .tolerance-bar{flex-direction:column;align-items:flex-start;}
+  .tolerance-wrap{justify-content:flex-start;width:100%;}
 }
 
 @media (max-width:560px){
@@ -871,6 +928,7 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   .upload-area{padding:32px 18px 30px;}
   .upload-icon{width:60px;height:60px;}
   .export-group{width:100%;justify-content:flex-start;}
+  .tol-btn{padding:8px 10px;font-size:11.5px;min-width:46px;}
 }
 </style>
 </head>
@@ -1105,6 +1163,28 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
         </div>
       </div>
 
+      <!-- Tolerance selector -->
+      <div class="tolerance-bar">
+        <span class="tolerance-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"/>
+            <line x1="4" y1="10" x2="4" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12" y2="3"/>
+            <line x1="20" y1="21" x2="20" y2="16"/>
+            <line x1="20" y1="12" x2="20" y2="3"/>
+            <line x1="1" y1="14" x2="7" y2="14"/>
+            <line x1="9" y1="8" x2="15" y2="8"/>
+            <line x1="17" y1="16" x2="23" y2="16"/>
+          </svg>
+          Weight Tolerance
+        </span>
+        <div class="tolerance-wrap" id="toleranceWrap">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
       <div class="kpi-grid" id="kpiGrid"></div>
 
       <div class="sku-bar">
@@ -1137,7 +1217,7 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
                stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 18l6-6-6-6"/>
           </svg>
-          Green = within ±2% · Red = out of limit
+          <span id="barChartHint">Green = within tolerance · Red = out of limit</span>
         </span>
       </div>
       <div class="chart-wrapper">
@@ -1154,8 +1234,8 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
               <th>Spec (kg)</th>
               <th>Avg Running Weight (kg)</th>
               <th>Deviation</th>
-              <th>Lower (−2%)</th>
-              <th>Upper (+2%)</th>
+              <th id="thLower">Lower (−2%)</th>
+              <th id="thUpper">Upper (+2%)</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -1195,10 +1275,13 @@ Chart.defaults.color = "#64748b";
 let skuMonthlyChartInstance = null;
 let skuYearlyBarChartInstance = null;
 let dashboardData = null;
+
 const state = {
   months: [],
   points: [],
   sku: "",
+  tolerance: 2,        // absolute percent value (0..5)
+  toleranceSign: "+",  // not used directly; UI shows both ±
   kpiData: [],
   busy: false
 };
@@ -1262,6 +1345,56 @@ function setBusy(flag, label) {
 }
 
 /* =========================================================
+   TOLERANCE MATH
+   Computes lower/upper bound from spec & selected %.
+   Falls back to supplied ±2% fields when tolerance = 2.
+========================================================= */
+function getTolerance() {
+  return Number(state.tolerance) || 0;
+}
+function toleranceLabel() {
+  const t = getTolerance();
+  const sign = t > 0 ? "+" : t < 0 ? "−" : "";
+  return sign + Math.abs(t) + "%";
+}
+function toleranceLabelBare() {
+  return Math.abs(getTolerance()) + "%";
+}
+function lowerBound(spec) {
+  const s = Number(spec);
+  if (!Number.isFinite(s)) return null;
+  return s * (1 - getTolerance() / 100);
+}
+function upperBound(spec) {
+  const s = Number(spec);
+  if (!Number.isFinite(s)) return null;
+  return s * (1 + getTolerance() / 100);
+}
+/* Returns { lo, hi } for a given row — uses supplied fields when tol=2,
+   otherwise computes from spec. */
+function boundsForRow(r) {
+  if (!r) return { lo: null, hi: null };
+  const spec = r.spec == null ? null : Number(r.spec);
+  const tol = getTolerance();
+  if (tol === 2) {
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent  == null ? null : Number(r.plus_2_percent);
+    if (Number.isFinite(lo) && Number.isFinite(hi)) return { lo, hi };
+  }
+  return { lo: lowerBound(spec), hi: upperBound(spec) };
+}
+function isWithin(r) {
+  if (!r) return null;
+  const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+  if (!Number.isFinite(run)) return null;
+  const { lo, hi } = boundsForRow(r);
+  if (Number.isFinite(lo) && Number.isFinite(hi)) {
+    return run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+  }
+  return null;
+}
+
+/* =========================================================
    FILTERS
 ========================================================= */
 function populateFilters(data) {
@@ -1293,6 +1426,37 @@ function populateFilters(data) {
 }
 
 /* =========================================================
+   TOLERANCE CONTROL
+========================================================= */
+function buildToleranceControl() {
+  const wrap = document.getElementById("toleranceWrap");
+  if (!wrap) return;
+
+  const values = [0, 1, 2, 3, 4, 5]; // absolute percentages
+  wrap.innerHTML = values.map(v => {
+    const label = v === 0 ? "0%" : "±" + v + "%";
+    const active = Number(state.tolerance) === v ? " active" : "";
+    return '<button type="button" class="tol-btn' + active +
+           '" data-value="' + v + '" aria-pressed="' + (active ? "true" : "false") + '">' +
+           label + '</button>';
+  }).join("");
+
+  wrap.querySelectorAll(".tol-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const v = Number(this.dataset.value);
+      if (!Number.isFinite(v)) return;
+      state.tolerance = v;
+      wrap.querySelectorAll(".tol-btn").forEach(b => {
+        const active = Number(b.dataset.value) === v;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      renderSkuAnalysis();
+    });
+  });
+}
+
+/* =========================================================
    KPI
 ========================================================= */
 function kpiIcon(tone) {
@@ -1321,23 +1485,19 @@ function computeKpis(selected, points) {
 
   let within = 0, evaluated = 0;
   withData.forEach(r => {
-    const spec = r.spec == null ? null : Number(r.spec);
     const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
     if (!Number.isFinite(run)) return;
     evaluated++;
-    if (Number.isFinite(lo) && Number.isFinite(hi)) {
-      if (run >= Math.min(lo, hi) && run <= Math.max(lo, hi)) within++;
-    } else if (Number.isFinite(spec) && spec !== 0) {
-      const pct = ((run - spec) / spec) * 100;
-      if (pct >= -2 && pct <= 2) within++;
-    }
+    const ok = isWithin(r);
+    if (ok === true) within++;
   });
 
   const compliance = evaluated ? (within / evaluated) * 100 : null;
-  const devTone = devPct == null ? "is-neutral" : Math.abs(devPct) <= 2 ? "is-ok" : "is-bad";
-  const compTone = compliance == null ? "is-neutral" : compliance >= 80 ? "is-ok" : "is-bad";
+  const tol = getTolerance();
+  const devTone = devPct == null ? "is-neutral"
+    : Math.abs(devPct) <= tol ? "is-ok" : "is-bad";
+  const compTone = compliance == null ? "is-neutral"
+    : compliance >= 80 ? "is-ok" : "is-bad";
 
   return [
     { label: "Average Spec", value: avgSpec == null ? "—" : n(avgSpec, 3), unit: "kg",
@@ -1350,7 +1510,7 @@ function computeKpis(selected, points) {
       sub: selected.length - withData.length > 0
         ? (selected.length - withData.length) + " month(s) missing"
         : "Complete coverage", tone: "is-neutral" },
-    { label: "Within ±2%", value: compliance == null ? "—" : compliance.toFixed(1), unit: "%",
+    { label: "Within " + toleranceLabel(), value: compliance == null ? "—" : compliance.toFixed(1), unit: "%",
       sub: within + " of " + evaluated + " month(s)", tone: compTone }
   ];
 }
@@ -1375,18 +1535,82 @@ function renderKpis(selected, points) {
 }
 
 /* =========================================================
-   CHART 1 — Monthly Trend (Line)
+   CHART 1 — Monthly Trend (Line) with tolerance band
 ========================================================= */
 function renderLineChart(selected, points) {
   const ctx = document.getElementById("skuMonthlyChart");
   if (!ctx) return;
   if (skuMonthlyChartInstance) skuMonthlyChartInstance.destroy();
 
+  const tol = getTolerance();
   const missing = points.map((r, i) => (r ? null : i)).filter(i => i !== null);
+
+  /* Compute tolerance lines from spec for each month */
+  const loData = points.map(r => {
+    if (!r) return null;
+    const spec = r.spec == null ? null : Number(r.spec);
+    if (!Number.isFinite(spec)) return null;
+    return Number((spec * (1 - tol / 100)).toFixed(4));
+  });
+  const hiData = points.map(r => {
+    if (!r) return null;
+    const spec = r.spec == null ? null : Number(r.spec);
+    if (!Number.isFinite(spec)) return null;
+    return Number((spec * (1 + tol / 100)).toFixed(4));
+  });
+
+  /* Tolerance band plugin (fill between lo and hi) */
+  const bandPlugin = {
+    id: "toleranceBand",
+    beforeDatasetsDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      if (!scales.x || !scales.y) return;
+
+      const loDataset = chart.data.datasets.find(d => d.label === "__lo");
+      const hiDataset = chart.data.datasets.find(d => d.label === "__hi");
+      if (!loDataset || !hiDataset) return;
+
+      const lo = loDataset.data;
+      const hi = hiDataset.data;
+      const xs = chart.data.labels.map((_, i) => scales.x.getPixelForValue(i));
+
+      ctx.save();
+      ctx.beginPath();
+      let started = false;
+      let firstX = null, lastX = null;
+
+      // top edge (hi)
+      hi.forEach((v, i) => {
+        if (v == null || !Number.isFinite(v)) return;
+        const x = xs[i];
+        const y = scales.y.getPixelForValue(v);
+        if (!started) { ctx.moveTo(x, y); started = true; }
+        else ctx.lineTo(x, y);
+        if (firstX == null) firstX = x;
+        lastX = x;
+      });
+      // bottom edge (lo) reversed
+      for (let i = lo.length - 1; i >= 0; i--) {
+        const v = lo[i];
+        if (v == null || !Number.isFinite(v)) continue;
+        const x = xs[i];
+        const y = scales.y.getPixelForValue(v);
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+
+      const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+      grad.addColorStop(0, "rgba(227,6,19,.09)");
+      grad.addColorStop(1, "rgba(227,6,19,.03)");
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+    }
+  };
 
   const missingPlugin = {
     id: "missingMonthIndicator",
-    afterDraw(chart) {
+    afterDatasetsDraw(chart) {
       if (!missing.length || !chart.scales.x) return;
       const c = chart.ctx;
       c.save();
@@ -1408,9 +1632,13 @@ function renderLineChart(selected, points) {
     }
   };
 
+  const tolLabel = "±" + tol + "%";
+  const tolLabelLow = "−" + tol + "%";
+  const tolLabelHigh = "+" + tol + "%";
+
   skuMonthlyChartInstance = new Chart(ctx, {
     type: "line",
-    plugins: [missingPlugin],
+    plugins: [bandPlugin, missingPlugin],
     data: {
       labels: selected.map(formatMonthLabel),
       datasets: [
@@ -1428,7 +1656,8 @@ function renderLineChart(selected, points) {
           pointBorderColor: "#ffffff",
           pointBorderWidth: 2.5,
           pointHoverBorderWidth: 3,
-          fill: false
+          fill: false,
+          order: 1
         },
         {
           label: "Spec",
@@ -1444,11 +1673,40 @@ function renderLineChart(selected, points) {
           pointBackgroundColor: "#0f172a",
           pointBorderColor: "#ffffff",
           pointBorderWidth: 2,
-          fill: false
+          fill: false,
+          order: 2
+        },
+        /* Hidden helper datasets for band fill */
+        {
+          label: "__lo",
+          data: loData,
+          borderColor: "transparent",
+          backgroundColor: "transparent",
+          borderWidth: 0,
+          pointRadius: 0,
+          spanGaps: true,
+          tension: 0.2,
+          fill: false,
+          hidden: true,
+          order: 99
         },
         {
-          label: "−2% Limit",
-          data: points.map(r => r && r.minus_2_percent != null ? Number(r.minus_2_percent) : null),
+          label: "__hi",
+          data: hiData,
+          borderColor: "transparent",
+          backgroundColor: "transparent",
+          borderWidth: 0,
+          pointRadius: 0,
+          spanGaps: true,
+          tension: 0.2,
+          fill: false,
+          hidden: true,
+          order: 100
+        },
+        /* Visible tolerance limit lines */
+        {
+          label: tolLabelLow + " Limit",
+          data: loData,
           borderColor: "#f59e0b",
           backgroundColor: "#f59e0b",
           borderWidth: 1.8,
@@ -1458,11 +1716,12 @@ function renderLineChart(selected, points) {
           pointRadius: 2,
           pointHoverRadius: 5,
           pointBackgroundColor: "#f59e0b",
-          fill: false
+          fill: false,
+          order: 3
         },
         {
-          label: "+2% Limit",
-          data: points.map(r => r && r.plus_2_percent != null ? Number(r.plus_2_percent) : null),
+          label: tolLabelHigh + " Limit",
+          data: hiData,
           borderColor: "#2563eb",
           backgroundColor: "#2563eb",
           borderWidth: 1.8,
@@ -1472,7 +1731,8 @@ function renderLineChart(selected, points) {
           pointRadius: 2,
           pointHoverRadius: 5,
           pointBackgroundColor: "#2563eb",
-          fill: false
+          fill: false,
+          order: 4
         }
       ]
     },
@@ -1501,7 +1761,8 @@ function renderLineChart(selected, points) {
           labels: {
             usePointStyle: true, pointStyle: "line",
             boxWidth: 26, padding: 18,
-            color: "#334155", font: { weight: "700", size: 12 }
+            color: "#334155", font: { weight: "700", size: 12 },
+            filter: (item) => !item.text.startsWith("__")
           }
         },
         tooltip: {
@@ -1510,7 +1771,8 @@ function renderLineChart(selected, points) {
           titleFont: { weight: "800", size: 13 },
           bodyFont: { weight: "600", size: 12.5 },
           bodySpacing: 6, boxPadding: 6,
-          borderColor: "rgba(255,255,255,.08)", borderWidth: 1
+          borderColor: "rgba(255,255,255,.08)", borderWidth: 1,
+          filter: (item) => !item.dataset.label.startsWith("__")
         }
       }
     }
@@ -1532,33 +1794,23 @@ function renderBarChart(selected, points) {
 
   const colors = points.map(r => {
     if (!r) return "rgba(203,213,225,.55)";
-    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
-    if (!Number.isFinite(run)) return "rgba(203,213,225,.55)";
-    if (Number.isFinite(lo) && Number.isFinite(hi)) {
-      return (run >= Math.min(lo, hi) && run <= Math.max(lo, hi))
-        ? "rgba(5,150,105,.85)" : "rgba(220,38,38,.85)";
-    }
+    const ok = isWithin(r);
+    if (ok === true)  return "rgba(5,150,105,.85)";
+    if (ok === false) return "rgba(220,38,38,.85)";
     return "rgba(148,163,184,.85)";
   });
 
   const borders = points.map(r => {
     if (!r) return "rgba(148,163,184,.6)";
-    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
-    if (!Number.isFinite(run)) return "rgba(148,163,184,.6)";
-    if (Number.isFinite(lo) && Number.isFinite(hi)) {
-      return (run >= Math.min(lo, hi) && run <= Math.max(lo, hi))
-        ? "#059669" : "#dc2626";
-    }
+    const ok = isWithin(r);
+    if (ok === true)  return "#059669";
+    if (ok === false) return "#dc2626";
     return "#94a3b8";
   });
 
   const yearlyLinePlugin = {
     id: "yearlyAverageLine",
-    afterDraw(chart) {
+    afterDatasetsDraw(chart) {
       if (yearAvg == null) return;
       const yScale = chart.scales.y;
       const y = yScale.getPixelForValue(yearAvg);
@@ -1582,11 +1834,8 @@ function renderBarChart(selected, points) {
       c.strokeStyle = "#e5eaf2";
       c.lineWidth = 1;
       c.beginPath();
-      if (c.roundRect) {
-        c.roundRect(bx, by, tw + 16, 20, 8);
-      } else {
-        c.rect(bx, by, tw + 16, 20);
-      }
+      if (c.roundRect) c.roundRect(bx, by, tw + 16, 20, 8);
+      else c.rect(bx, by, tw + 16, 20);
       c.fill(); c.stroke();
 
       c.fillStyle = "#0f172a";
@@ -1644,8 +1893,16 @@ function renderBarChart(selected, points) {
               return "Avg Running Weight: " + (Number.isFinite(v) ? v.toFixed(3) + " kg" : "No data");
             },
             afterLabel: (ctx) => {
-              if (yearAvg == null) return "";
-              return "Full-Year Avg: " + yearAvg.toFixed(3) + " kg";
+              const i = ctx.dataIndex;
+              const r = state.points[i];
+              if (!r) return "";
+              const spec = r.spec == null ? null : Number(r.spec);
+              const ok = isWithin(r);
+              const lines = [];
+              if (Number.isFinite(spec)) lines.push("Spec: " + spec.toFixed(3) + " kg");
+              if (ok !== null) lines.push("Status: " + (ok ? "Within " + toleranceLabel() : "Out of " + toleranceLabel()));
+              if (yearAvg != null) lines.push("Full-Year Avg: " + yearAvg.toFixed(3) + " kg");
+              return lines;
             }
           }
         }
@@ -1660,6 +1917,14 @@ function renderBarChart(selected, points) {
 function renderTable(selected, points) {
   const tbody = document.getElementById("skuMonthTable");
   if (!tbody) return;
+
+  const tol = getTolerance();
+  const tolLabel = toleranceLabel();
+  const thLower = document.getElementById("thLower");
+  const thUpper = document.getElementById("thUpper");
+  if (thLower) thLower.textContent = "Lower (" + tolLabel + ")";
+  if (thUpper) thUpper.textContent = "Upper (" + tolLabel + ")";
+
   tbody.innerHTML = "";
 
   if (!selected.length) {
@@ -1681,8 +1946,7 @@ function renderTable(selected, points) {
 
     const spec = r.spec == null ? null : Number(r.spec);
     const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    const { lo, hi } = boundsForRow(r);
 
     let dev = null, devPct = null;
     if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
@@ -1690,18 +1954,13 @@ function renderTable(selected, points) {
       devPct = (dev / spec) * 100;
     }
 
-    let ok = null;
-    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
-      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
-    } else if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
-      ok = devPct >= -2 && devPct <= 2;
-    }
+    const ok = isWithin(r);
 
     const badge = ok === null
       ? '<span style="color:var(--faint);font-weight:700;">—</span>'
       : ok
-        ? '<span class="badge ok">Within limit</span>'
-        : '<span class="badge bad">Out of limit</span>';
+        ? '<span class="badge ok">Within ' + escapeHtml(tolLabel) + '</span>'
+        : '<span class="badge bad">Out of ' + escapeHtml(tolLabel) + '</span>';
 
     tbody.insertAdjacentHTML("beforeend",
       '<tr class="' + (ok === false ? "row-out" : "") + '">' +
@@ -1711,8 +1970,8 @@ function renderTable(selected, points) {
         '<td>' + (dev == null ? "—" :
           signed(dev, 3) + (devPct == null ? "" :
             ' <span style="color:var(--faint);font-weight:600;">(' + signed(devPct, 2) + '%)</span>')) + '</td>' +
-        '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
-        '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+        '<td>' + (lo == null || !Number.isFinite(lo) ? "—" : n(lo, 3)) + '</td>' +
+        '<td>' + (hi == null || !Number.isFinite(hi) ? "—" : n(hi, 3)) + '</td>' +
         '<td>' + badge + '</td>' +
       '</tr>');
   });
@@ -1774,6 +2033,12 @@ function renderSkuAnalysis() {
     }
   }
 
+  /* Bar chart hint */
+  const barHint = document.getElementById("barChartHint");
+  if (barHint) {
+    barHint.textContent = "Green = within " + toleranceLabel() + " · Red = out of limit";
+  }
+
   /* Missing info */
   const missing = points.map((r, i) => (r ? null : i)).filter(i => i !== null);
   const info = document.getElementById("skuMissingInfo");
@@ -1804,7 +2069,11 @@ function renderSkuAnalysis() {
 function exportCsv() {
   if (!state.months.length) return;
 
-  const header = ["Month", "Spec (kg)", "Avg Running Weight (kg)", "Deviation (kg)", "Deviation (%)", "Lower (-2%)", "Upper (+2%)", "Status"];
+  const tolLabel = toleranceLabel();
+  const header = [
+    "Month", "Spec (kg)", "Avg Running Weight (kg)", "Deviation (kg)",
+    "Deviation (%)", "Lower (" + tolLabel + ")", "Upper (" + tolLabel + ")", "Status"
+  ];
   const lines = [header.join(",")];
 
   state.months.forEach((m, i) => {
@@ -1815,18 +2084,14 @@ function exportCsv() {
     }
     const spec = r.spec == null ? null : Number(r.spec);
     const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    const { lo, hi } = boundsForRow(r);
 
-    let dev = null, devPct = null, ok = null;
+    let dev = null, devPct = null;
     if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
       dev = run - spec;
       devPct = (dev / spec) * 100;
-      ok = devPct >= -2 && devPct <= 2;
     }
-    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
-      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
-    }
+    const ok = isWithin(r);
 
     lines.push([
       formatMonthLabel(m),
@@ -1834,8 +2099,8 @@ function exportCsv() {
       run == null ? "" : run.toFixed(3),
       dev == null ? "" : dev.toFixed(3),
       devPct == null ? "" : devPct.toFixed(2),
-      lo == null ? "" : lo.toFixed(3),
-      hi == null ? "" : hi.toFixed(3),
+      lo == null || !Number.isFinite(lo) ? "" : lo.toFixed(3),
+      hi == null || !Number.isFinite(hi) ? "" : hi.toFixed(3),
       ok === null ? "" : ok ? "Within limit" : "Out of limit"
     ].join(","));
   });
@@ -1845,38 +2110,8 @@ function exportCsv() {
 }
 
 /* =========================================================
-   SVG → PNG (for Word export)
+   CANVAS → PNG
 ========================================================= */
-function svgToPng(svgEl, scale) {
-  return new Promise(function (resolve) {
-    if (!svgEl) return resolve(null);
-    try {
-      const w = Number(svgEl.getAttribute("width")) || svgEl.clientWidth || 800;
-      const h = Number(svgEl.getAttribute("height")) || svgEl.clientHeight || 360;
-      const clone = svgEl.cloneNode(true);
-      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const data = new XMLSerializer().serializeToString(clone);
-      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(data);
-      const img = new Image();
-      img.onload = function () {
-        const s = scale || 2;
-        const c = document.createElement("canvas");
-        c.width = Math.round(w * s);
-        c.height = Math.round(h * s);
-        const cx = c.getContext("2d");
-        cx.fillStyle = "#ffffff";
-        cx.fillRect(0, 0, c.width, c.height);
-        cx.drawImage(img, 0, 0, c.width, c.height);
-        try { resolve(c.toDataURL("image/png")); }
-        catch (e) { resolve(null); }
-      };
-      img.onerror = function () { resolve(null); };
-      img.src = url;
-    } catch (e) { resolve(null); }
-  });
-}
-
-/* Convert Chart.js canvas → PNG dataURL */
 function canvasToPng(canvasEl, scale) {
   return new Promise(function (resolve) {
     if (!canvasEl) return resolve(null);
@@ -1910,6 +2145,8 @@ async function exportWord() {
   const lineImg = await canvasToPng(lineCanvas, 2);
   const barImg  = await canvasToPng(barCanvas, 2);
 
+  const tolLabel = toleranceLabel();
+
   const kpiRows = state.kpiData.map(function (k) {
     return '<tr>' +
       '<td style="border:1px solid #e5eaf2;padding:9px;background:#f8fafc;font-weight:700;color:#0b1220;">' + escapeHtml(k.label) + '</td>' +
@@ -1930,18 +2167,14 @@ async function exportWord() {
     }
     const spec = r.spec == null ? null : Number(r.spec);
     const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    const { lo, hi } = boundsForRow(r);
 
-    let dev = null, devPct = null, ok = null;
+    let dev = null, devPct = null;
     if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
       dev = run - spec;
       devPct = (dev / spec) * 100;
-      ok = devPct >= -2 && devPct <= 2;
     }
-    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
-      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
-    }
+    const ok = isWithin(r);
 
     tableRows += '<tr>' +
       '<td style="border:1px solid #e5eaf2;padding:8px;font-weight:700;color:#0b1220;">' + escapeHtml(formatMonthLabel(m)) + '</td>' +
@@ -1949,8 +2182,8 @@ async function exportWord() {
       '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (run == null ? "—" : n(run, 3)) + '</td>' +
       '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' +
         (dev == null ? "—" : signed(dev, 3) + (devPct == null ? "" : " (" + signed(devPct, 2) + "%)")) + '</td>' +
-      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
-      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (lo == null || !Number.isFinite(lo) ? "—" : n(lo, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (hi == null || !Number.isFinite(hi) ? "—" : n(hi, 3)) + '</td>' +
       '<td style="border:1px solid #e5eaf2;padding:8px;text-align:center;font-weight:700;color:' + (ok === false ? "#dc2626" : ok === true ? "#059669" : "#64748b") + ';">' +
         (ok === null ? "—" : ok ? "Within limit" : "Out of limit") + '</td>' +
     '</tr>';
@@ -1987,7 +2220,7 @@ async function exportWord() {
 
     '<div class="meta-box">' +
       '<p><strong>SKU / Size:</strong> ' + escapeHtml(state.sku || "—") + '</p>' +
-      '<p><strong>Weight Tolerance:</strong> ±2%</p>' +
+      '<p><strong>Weight Tolerance:</strong> ' + escapeHtml(tolLabel) + '</p>' +
       '<p><strong>Months Covered:</strong> ' + state.points.filter(Boolean).length + ' of ' + state.months.length + '</p>' +
       '<p><strong>Generated:</strong> ' + escapeHtml(generated) + '</p>' +
     '</div>' +
@@ -2009,8 +2242,8 @@ async function exportWord() {
       '<th style="text-align:right;">Spec (kg)</th>' +
       '<th style="text-align:right;">Avg Running Weight (kg)</th>' +
       '<th style="text-align:right;">Deviation</th>' +
-      '<th style="text-align:right;">Lower (−2%)</th>' +
-      '<th style="text-align:right;">Upper (+2%)</th>' +
+      '<th style="text-align:right;">Lower (' + escapeHtml(tolLabel) + ')</th>' +
+      '<th style="text-align:right;">Upper (' + escapeHtml(tolLabel) + ')</th>' +
       '<th style="text-align:center;">Status</th>' +
     '</tr></thead><tbody>' + tableRows + '</tbody></table>' +
 
@@ -2030,7 +2263,7 @@ async function exportWord() {
 }
 
 /* =========================================================
-   PDF EXPORT (via printable iframe)
+   PDF EXPORT
 ========================================================= */
 function exportPdf() {
   if (!state.months.length) {
@@ -2042,6 +2275,8 @@ function exportPdf() {
   const barCanvas  = document.getElementById("skuYearlyBarChart");
   const lineImg = lineCanvas ? lineCanvas.toDataURL("image/png", 1.0) : null;
   const barImg  = barCanvas ? barCanvas.toDataURL("image/png", 1.0) : null;
+
+  const tolLabel = toleranceLabel();
 
   const kpiRows = state.kpiData.map(function (k) {
     return '<tr>' +
@@ -2060,26 +2295,22 @@ function exportPdf() {
     }
     const spec = r.spec == null ? null : Number(r.spec);
     const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    const { lo, hi } = boundsForRow(r);
 
-    let dev = null, devPct = null, ok = null;
+    let dev = null, devPct = null;
     if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
       dev = run - spec;
       devPct = (dev / spec) * 100;
-      ok = devPct >= -2 && devPct <= 2;
     }
-    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
-      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
-    }
+    const ok = isWithin(r);
 
     tableRows += '<tr class="' + (ok === false ? "out" : "") + '">' +
       '<td class="m">' + escapeHtml(formatMonthLabel(m)) + '</td>' +
       '<td>' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
       '<td>' + (run == null ? "—" : n(run, 3)) + '</td>' +
       '<td>' + (dev == null ? "—" : signed(dev, 3) + (devPct == null ? "" : " (" + signed(devPct, 2) + "%)")) + '</td>' +
-      '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
-      '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+      '<td>' + (lo == null || !Number.isFinite(lo) ? "—" : n(lo, 3)) + '</td>' +
+      '<td>' + (hi == null || !Number.isFinite(hi) ? "—" : n(hi, 3)) + '</td>' +
       '<td class="' + (ok === true ? "ok" : ok === false ? "bad" : "") + '">' +
         (ok === null ? "—" : ok ? "Within limit" : "Out of limit") + '</td>' +
     '</tr>';
@@ -2135,14 +2366,14 @@ function exportPdf() {
       '<div>' +
         '<div class="rpt-kicker">JK Tyre · Report</div>' +
         '<div class="rpt-title">SKU Monthly Running Weight Analysis</div>' +
-        '<div class="rpt-sub">' + escapeHtml(state.sku || "—") + ' · Tolerance: ±2%</div>' +
+        '<div class="rpt-sub">' + escapeHtml(state.sku || "—") + ' · Tolerance: ' + escapeHtml(tolLabel) + '</div>' +
       '</div>' +
       '<div class="rpt-meta">Generated<br><b>' + escapeHtml(generated) + '</b></div>' +
     '</div>' +
 
     '<div class="info-box">' +
       '<b>Months covered:</b> ' + state.points.filter(Boolean).length + ' of ' + state.months.length +
-      ' &nbsp;&nbsp;|&nbsp;&nbsp; <b>Weight tolerance:</b> ±2%' +
+      ' &nbsp;&nbsp;|&nbsp;&nbsp; <b>Weight tolerance:</b> ' + escapeHtml(tolLabel) +
       ' &nbsp;&nbsp;|&nbsp;&nbsp; <b>SKU / Size:</b> ' + escapeHtml(state.sku || "—") +
     '</div>' +
 
@@ -2166,8 +2397,8 @@ function exportPdf() {
       '<th>Spec (kg)</th>' +
       '<th>Avg Running Weight (kg)</th>' +
       '<th>Deviation</th>' +
-      '<th>Lower (−2%)</th>' +
-      '<th>Upper (+2%)</th>' +
+      '<th>Lower (' + escapeHtml(tolLabel) + ')</th>' +
+      '<th>Upper (' + escapeHtml(tolLabel) + ')</th>' +
       '<th>Status</th>' +
     '</tr></thead><tbody>' + tableRows + '</tbody></table>' +
 
@@ -2219,6 +2450,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
+
+  /* Build tolerance buttons */
+  buildToleranceControl();
 
   const form = document.getElementById("uploadForm");
   const fileInput = document.getElementById("file");
