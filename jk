@@ -1,4579 +1,1849 @@
-\<!DOCTYPE html>
-
-\<html lang="en">
-
-
-
-\<head>
-
-
-
-    \<meta charset="UTF-8">
-
-
-
-    \<meta name="viewport"
-
-          content="width=device-width, initial-scale=1.0">
-
-
-
-    \<title>JK Tyre - SKU Monthly Running Weight Analysis\</title>
-
-
-
-    \<link rel="preconnect" href="https\://fonts.googleapis.com">
-
-    \<link rel="preconnect" href="https\://fonts.gstatic.com" crossorigin>
-
-    \<link href="https\://fonts.googleapis.com/css2?family=Inter:wght\@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-
-
-    \<script src="https\://cdn.jsdelivr.net/npm/chart.js">\</script>
-
-
-
-    \<style>
-
-
-
-        /\* =================================================
-
-           DESIGN TOKENS
-
-        ================================================= \*/
-
-
-
-        :root {
-
-
-
-            --jk-red: #e30613;
-
-            --jk-red-light: #ff4438;
-
-            --jk-red-glow: rgba(227, 6, 19, .35);
-
-
-
-            --ink: #0b1220;
-
-            --ink-2: #1e293b;
-
-            --slate: #475569;
-
-            --muted: #64748b;
-
-            --faint: #94a3b8;
-
-
-
-            --line: #e5eaf2;
-
-            --line-soft: #eef2f7;
-
-            --soft: #f8fafc;
-
-
-
-            --bg: #eef2f7;
-
-
-
-            --radius: 18px;
-
-            --radius-sm: 12px;
-
-            --radius-lg: 24px;
-
-
-
-            --shadow:
-
-                0 1px 2px rgba(15, 23, 42, .04),
-
-                0 12px 32px -16px rgba(15, 23, 42, .22);
-
-
-
-            --shadow-hover:
-
-                0 2px 4px rgba(15, 23, 42, .05),
-
-                0 26px 48px -20px rgba(15, 23, 42, .32);
-
-
-
-            --shadow-red:
-
-                0 10px 30px -12px rgba(227, 6, 19, .55);
-
-
-
-            --font:
-
-                'Inter',
-
-                -apple-system,
-
-                BlinkMacSystemFont,
-
-                'Segoe UI',
-
-                Roboto,
-
-                Arial,
-
-                sans-serif;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           BASE
-
-        ================================================= \*/
-
-
-
-        \*,
-
-        \*::before,
-
-        \*::after {
-
-            box-sizing: border-box;
-
-        }
-
-
-
-
-
-        html {
-
-            scroll-behavior: smooth;
-
-            overflow-x: hidden;
-
-            max-width: 100%;
-
-        }
-
-
-
-
-
-        body {
-
-
-
-            margin: 0;
-
-
-
-            font-family: var(--font);
-
-
-
-            font-size: 14px;
-
-
-
-            color: var(--ink-2);
-
-
-
-            background:
-
-                radial-gradient(1400px 720px at 100% -18%, #dbe7ff 0%, transparent 58%),
-
-                radial-gradient(1100px 640px at -12% 4%, #ffe1e4 0%, transparent 52%),
-
-                radial-gradient(900px 900px at 50% 120%, #e6f0ff 0%, transparent 60%),
-
-                var(--bg);
-
-
-
-            background-attachment: fixed;
-
-
-
-            overflow-x: hidden;
-
-
-
-            max-width: 100%;
-
-
-
-            -webkit-font-smoothing: antialiased;
-
-            -moz-osx-font-smoothing: grayscale;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           HEADER
-
-        ================================================= \*/
-
-
-
-        .app-header {
-
-
-
-            position: relative;
-
-
-
-            overflow: hidden;
-
-
-
-            padding: 0;
-
-
-
-            color: #fff;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    125deg,
-
-                    #060912 0%,
-
-                    #0c1222 38%,
-
-                    #131c33 68%,
-
-                    #1c2745 100%
-
-                );
-
-
-
-            border-bottom: 1px solid rgba(255, 255, 255, .06);
-
-        }
-
-
-
-
-
-        .app-header::before {
-
-
-
-            content: "";
-
-
-
-            position: absolute;
-
-
-
-            top: 0; left: 0; right: 0;
-
-
-
-            height: 3px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    var(--jk-red) 0%,
-
-                    var(--jk-red-light) 30%,
-
-                    #ffc2c6 55%,
-
-                    transparent 92%
-
-                );
-
-
-
-            z-index: 3;
-
-        }
-
-
-
-
-
-        .app-header::after {
-
-
-
-            content: "";
-
-
-
-            position: absolute;
-
-
-
-            right: -160px;
-
-            top: -190px;
-
-
-
-            width: 620px;
-
-            height: 620px;
-
-
-
-            border-radius: 50%;
-
-
-
-            background:
-
-                radial-gradient(
-
-                    circle,
-
-                    rgba(227, 6, 19, .42),
-
-                    rgba(227, 6, 19, 0) 60%
-
-                );
-
-
-
-            pointer-events: none;
-
-
-
-            z-index: 0;
-
-
-
-            animation: headerGlow 8s ease-in-out infinite;
-
-        }
-
-
-
-
-
-        @keyframes headerGlow {
-
-
-
-            0%, 100% {
-
-                opacity: .85;
-
-                transform: scale(1);
-
-            }
-
-
-
-            50% {
-
-                opacity: 1;
-
-                transform: scale(1.08);
-
-            }
-
-        }
-
-
-
-
-
-        /\* Subtle grid pattern overlay \*/
-
-        .app-header .header-grid {
-
-
-
-            position: absolute;
-
-
-
-            inset: 0;
-
-
-
-            background-image:
-
-                linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
-
-                linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
-
-
-
-            background-size: 44px 44px;
-
-
-
-            mask-image: radial-gradient(circle at 70% 30%, #000 0%, transparent 72%);
-
-
-
-            pointer-events: none;
-
-
-
-            z-index: 1;
-
-        }
-
-
-
-
-
-        .header-inner {
-
-
-
-            position: relative;
-
-            z-index: 2;
-
-
-
-            max-width: 1600px;
-
-
-
-            margin: 0 auto;
-
-
-
-            padding: 18px 30px;
-
-
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-
-
-            gap: 26px;
-
-            flex-wrap: wrap;
-
-        }
-
-
-
-
-
-        .header-brand {
-
-
-
-            display: flex;
-
-            align-items: center;
-
-
-
-            gap: 20px;
-
-
-
-            min-width: 0;
-
-        }
-
-
-
-
-
-        .logo-badge {
-
-
-
-            position: relative;
-
-
-
-            flex: 0 0 auto;
-
-
-
-            width: 76px;
-
-            height: 76px;
-
-
-
-            display: grid;
-
-            place-items: center;
-
-
-
-            border-radius: 50%;
-
-
-
-            background:
-
-                radial-gradient(
-
-                    circle at 50% 40%,
-
-                    rgba(255, 255, 255, .14) 0%,
-
-                    rgba(255, 255, 255, .04) 55%,
-
-                    rgba(255, 255, 255, 0) 75%
-
-                );
-
-
-
-            box-shadow:
-
-                0 0 0 1px rgba(255, 255, 255, .14),
-
-                0 0 0 4px rgba(255, 255, 255, .05),
-
-                0 14px 32px -12px rgba(0, 0, 0, .7);
-
-
-
-            transition:
-
-                transform .3s cubic-bezier(.34, 1.56, .64, 1),
-
-                box-shadow .3s ease;
-
-        }
-
-
-
-
-
-        .logo-badge:hover {
-
-
-
-            transform: translateY(-3px) scale(1.03);
-
-
-
-            box-shadow:
-
-                0 0 0 1px rgba(255, 255, 255, .22),
-
-                0 0 0 6px rgba(227, 6, 19, .14),
-
-                0 18px 40px -14px rgba(0, 0, 0, .8);
-
-        }
-
-
-
-
-
-        .logo-badge::after {
-
-
-
-            content: "";
-
-
-
-            position: absolute;
-
-            inset: -12px;
-
-
-
-            border-radius: 50%;
-
-
-
-            background:
-
-                radial-gradient(
-
-                    circle,
-
-                    rgba(227, 6, 19, .45) 0%,
-
-                    rgba(227, 6, 19, 0) 65%
-
-                );
-
-
-
-            z-index: -1;
-
-
-
-            pointer-events: none;
-
-
-
-            animation: logoHalo 4s ease-in-out infinite;
-
-        }
-
-
-
-
-
-        @keyframes logoHalo {
-
-
-
-            0%, 100% {
-
-                opacity: .7;
-
-                transform: scale(1);
-
-            }
-
-
-
-            50% {
-
-                opacity: 1;
-
-                transform: scale(1.12);
-
-            }
-
-        }
-
-
-
-
-
-        .jk-logo {
-
-
-
-            display: block;
-
-
-
-            width: 100%;
-
-            height: 100%;
-
-
-
-            object-fit: contain;
-
-
-
-            border-radius: 50%;
-
-        }
-
-
-
-
-
-        .logo-fallback {
-
-
-
-            display: none;
-
-
-
-            font-size: 22px;
-
-            font-weight: 900;
-
-
-
-            letter-spacing: 1.4px;
-
-
-
-            color: var(--jk-red);
-
-
-
-            white-space: nowrap;
-
-        }
-
-
-
-
-
-        .logo-fallback.show {
-
-            display: inline-block;
-
-        }
-
-
-
-
-
-        .brand-divider {
-
-
-
-            width: 1px;
-
-            height: 52px;
-
-
-
-            flex: 0 0 auto;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    transparent,
-
-                    rgba(255, 255, 255, .28),
-
-                    transparent
-
-                );
-
-        }
-
-
-
-
-
-        .header-text {
-
-            min-width: 0;
-
-        }
-
-
-
-
-
-        .header-text h1 {
-
-
-
-            margin: 0;
-
-
-
-            font-size: 23px;
-
-            font-weight: 800;
-
-
-
-            letter-spacing: -.4px;
-
-
-
-            line-height: 1.22;
-
-
-
-            color: #ffffff;
-
-
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-        }
-
-
-
-
-
-        .header-text h1 .accent {
-
-
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    #ff6a6a 0%,
-
-                    #ffb3b8 60%,
-
-                    #ffd6d8 100%
-
-                );
-
-
-
-            -webkit-background-clip: text;
-
-            background-clip: text;
-
-
-
-            -webkit-text-fill-color: transparent;
-
-        }
-
-
-
-
-
-        .header-text p {
-
-
-
-            display: flex;
-
-            align-items: center;
-
-
-
-            gap: 10px;
-
-
-
-            margin: 7px 0 0;
-
-
-
-            font-size: 12.5px;
-
-            font-weight: 500;
-
-
-
-            letter-spacing: .25px;
-
-
-
-            color: #9fb0c9;
-
-        }
-
-
-
-
-
-        .header-text p .tag {
-
-
-
-            display: inline-flex;
-
-            align-items: center;
-
-
-
-            gap: 6px;
-
-
-
-            padding: 3px 10px;
-
-
-
-            font-size: 10.5px;
-
-            font-weight: 800;
-
-
-
-            letter-spacing: .7px;
-
-            text-transform: uppercase;
-
-
-
-            color: #ffd6d8;
-
-
-
-            background: rgba(227, 6, 19, .22);
-
-
-
-            border: 1px solid rgba(227, 6, 19, .45);
-
-
-
-            border-radius: 999px;
-
-
-
-            box-shadow:
-
-                0 0 0 3px rgba(227, 6, 19, .08);
-
-        }
-
-
-
-
-
-        .header-meta {
-
-
-
-            display: flex;
-
-            align-items: center;
-
-
-
-            gap: 12px;
-
-
-
-            flex: 0 0 auto;
-
-        }
-
-
-
-
-
-        .chip {
-
-
-
-            display: inline-flex;
-
-            align-items: center;
-
-
-
-            gap: 10px;
-
-
-
-            padding: 10px 18px;
-
-
-
-            font-size: 12.5px;
-
-            font-weight: 600;
-
-
-
-            letter-spacing: .2px;
-
-
-
-            color: #dbe6f5;
-
-
-
-            background: rgba(255, 255, 255, .07);
-
-
-
-            border: 1px solid rgba(255, 255, 255, .16);
-
-
-
-            border-radius: 999px;
-
-
-
-            white-space: nowrap;
-
-
-
-            backdrop-filter: blur(10px);
-
-
-
-            transition:
-
-                background .2s ease,
-
-                border-color .2s ease,
-
-                transform .2s ease;
-
-        }
-
-
-
-
-
-        .chip:hover {
-
-
-
-            background: rgba(255, 255, 255, .12);
-
-            border-color: rgba(255, 255, 255, .28);
-
-
-
-            transform: translateY(-1px);
-
-        }
-
-
-
-
-
-        .chip .dot {
-
-
-
-            width: 8px;
-
-            height: 8px;
-
-
-
-            border-radius: 50%;
-
-
-
-            background: #22c55e;
-
-
-
-            box-shadow:
-
-                0 0 0 4px rgba(34, 197, 94, .2);
-
-
-
-            animation: pulse 2.4s ease-in-out infinite;
-
-        }
-
-
-
-
-
-        @keyframes pulse {
-
-
-
-            0%, 100% {
-
-                box-shadow: 0 0 0 4px rgba(34, 197, 94, .2);
-
-            }
-
-
-
-            50% {
-
-                box-shadow: 0 0 0 8px rgba(34, 197, 94, .04);
-
-            }
-
-        }
-
-
-
-
-
-        .header-rule {
-
-
-
-            position: relative;
-
-            z-index: 2;
-
-
-
-            height: 3px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    var(--jk-red) 0%,
-
-                    var(--jk-red) 30%,
-
-                    rgba(227, 6, 19, .15) 70%,
-
-                    transparent 100%
-
-                );
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           LAYOUT
-
-        ================================================= \*/
-
-
-
-        .container {
-
-
-
-            max-width: 1600px;
-
-
-
-            margin: 0 auto;
-
-
-
-            padding: 32px 30px 72px;
-
-
-
-            width: 100%;
-
-
-
-            overflow-x: clip;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           CARD
-
-        ================================================= \*/
-
-
-
-        .card {
-
-
-
-            position: relative;
-
-
-
-            background:
-
-                linear-gradient(180deg, #ffffff 0%, #fdfeff 100%);
-
-
-
-            border: 1px solid var(--line);
-
-            border-radius: var(--radius-lg);
-
-
-
-            padding: 26px 28px;
-
-
-
-            margin-bottom: 26px;
-
-
-
-            box-shadow: var(--shadow);
-
-
-
-            transition:
-
-                box-shadow .35s ease,
-
-                transform .35s ease,
-
-                border-color .35s ease;
-
-
-
-            min-width: 0;
-
-
-
-            overflow: hidden;
-
-        }
-
-
-
-
-
-        .card::before {
-
-
-
-            content: "";
-
-
-
-            position: absolute;
-
-
-
-            top: 0; left: 0; right: 0;
-
-
-
-            height: 3px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    transparent 0%,
-
-                    rgba(227, 6, 19, .12) 25%,
-
-                    rgba(227, 6, 19, .12) 75%,
-
-                    transparent 100%
-
-                );
-
-
-
-            opacity: 0;
-
-
-
-            transition: opacity .35s ease;
-
-        }
-
-
-
-
-
-        .card:hover {
-
-
-
-            box-shadow: var(--shadow-hover);
-
-
-
-            transform: translateY(-2px);
-
-
-
-            border-color: #dbe4f0;
-
-        }
-
-
-
-
-
-        .card:hover::before {
-
-            opacity: 1;
-
-        }
-
-
-
-
-
-        .card h2 {
-
-
-
-            display: flex;
-
-            align-items: center;
-
-
-
-            gap: 12px;
-
-
-
-            margin: 0 0 10px;
-
-
-
-            font-size: 18px;
-
-            font-weight: 800;
-
-
-
-            letter-spacing: -.2px;
-
-
-
-            color: var(--ink);
-
-        }
-
-
-
-
-
-        .card h2::before {
-
-
-
-            content: "";
-
-
-
-            width: 5px;
-
-            height: 20px;
-
-
-
-            border-radius: 4px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    var(--jk-red),
-
-                    var(--jk-red-light)
-
-                );
-
-
-
-            box-shadow:
-
-                0 4px 12px -2px var(--jk-red-glow);
-
-
-
-            flex: 0 0 auto;
-
-        }
-
-
-
-
-
-        .card p {
-
-
-
-            margin: 0 0 16px;
-
-
-
-            font-size: 13.5px;
-
-            line-height: 1.68;
-
-
-
-            color: var(--muted);
-
-        }
-
-
-
-
-
-        .card p strong {
-
-            color: var(--ink-2);
-
-            font-weight: 700;
-
-        }
-
-
-
-
-
-        .table-note {
-
-
-
-            margin: 4px 0 20px !important;
-
-
-
-            font-size: 13.5px;
-
-            line-height: 1.68;
-
-
-
-            color: var(--muted);
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           UPLOAD
-
-        ================================================= \*/
-
-
-
-        .upload-area {
-
-
-
-            position: relative;
-
-
-
-            padding: 40px 26px;
-
-
-
-            text-align: center;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #fbfdff 0%,
-
-                    #f4f8fe 100%
-
-                );
-
-
-
-            border: 2px dashed #c8d6e5;
-
-            border-radius: 18px;
-
-
-
-            cursor: pointer;
-
-
-
-            transition:
-
-                border-color .3s ease,
-
-                background .3s ease,
-
-                transform .3s ease,
-
-                box-shadow .3s ease;
-
-        }
-
-
-
-
-
-        .upload-area:hover {
-
-
-
-            border-color: var(--jk-red);
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #fff 0%,
-
-                    #fff6f6 100%
-
-                );
-
-
-
-            box-shadow:
-
-                inset 0 0 0 1px rgba(227, 6, 19, .06),
-
-                0 12px 32px -18px rgba(227, 6, 19, .4);
-
-        }
-
-
-
-
-
-        .upload-area.dragover {
-
-
-
-            border-color: var(--jk-red);
-
-
-
-            background: #fff1f2;
-
-
-
-            transform: scale(1.008);
-
-
-
-            box-shadow:
-
-                inset 0 0 0 2px rgba(227, 6, 19, .12),
-
-                0 16px 40px -18px rgba(227, 6, 19, .55);
-
-        }
-
-
-
-
-
-        .upload-icon {
-
-
-
-            display: grid;
-
-            place-items: center;
-
-
-
-            width: 64px;
-
-            height: 64px;
-
-
-
-            margin: 0 auto 16px;
-
-
-
-            color: var(--jk-red);
-
-
-
-            background:
-
-                linear-gradient(
-
-                    145deg,
-
-                    rgba(227, 6, 19, .12),
-
-                    rgba(227, 6, 19, .05)
-
-                );
-
-
-
-            border-radius: 18px;
-
-
-
-            box-shadow:
-
-                0 8px 20px -10px rgba(227, 6, 19, .35);
-
-
-
-            transition:
-
-                transform .35s cubic-bezier(.34, 1.56, .64, 1);
-
-        }
-
-
-
-
-
-        .upload-area:hover .upload-icon {
-
-            transform: translateY(-4px) rotate(-4deg) scale(1.06);
-
-        }
-
-
-
-
-
-        .upload-icon svg {
-
-            width: 28px;
-
-            height: 28px;
-
-        }
-
-
-
-
-
-        .upload-title {
-
-
-
-            margin: 0 0 6px !important;
-
-
-
-            font-size: 15.5px !important;
-
-            font-weight: 700;
-
-
-
-            color: var(--ink) !important;
-
-        }
-
-
-
-
-
-        .upload-hint {
-
-
-
-            margin: 0 0 20px !important;
-
-
-
-            font-size: 12.5px !important;
-
-
-
-            color: var(--faint) !important;
-
-        }
-
-
-
-
-
-        .file-input {
-
-
-
-            position: absolute;
-
-
-
-            width: 1px;
-
-            height: 1px;
-
-
-
-            padding: 0;
-
-            margin: -1px;
-
-
-
-            overflow: hidden;
-
-
-
-            clip: rect(0 0 0 0);
-
-
-
-            white-space: nowrap;
-
-
-
-            border: 0;
-
-        }
-
-
-
-
-
-        .file-name {
-
-
-
-            display: none;
-
-
-
-            margin: 0 auto 18px;
-
-
-
-            max-width: 460px;
-
-
-
-            padding: 10px 16px;
-
-
-
-            font-size: 12.5px;
-
-            font-weight: 600;
-
-
-
-            color: #0369a1;
-
-
-
-            background:
-
-                linear-gradient(180deg, #e0f2fe, #d8ecfd);
-
-
-
-            border: 1px solid #bae6fd;
-
-            border-radius: 10px;
-
-
-
-            word-break: break-all;
-
-
-
-            box-shadow:
-
-                0 4px 12px -6px rgba(3, 105, 161, .2);
-
-        }
-
-
-
-
-
-        .file-name.show {
-
-            display: block;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           BUTTONS
-
-        ================================================= \*/
-
-
-
-        button {
-
-
-
-            font-family: inherit;
-
-
-
-            font-size: 14px;
-
-            font-weight: 700;
-
-
-
-            letter-spacing: .25px;
-
-
-
-            color: #fff;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    135deg,
-
-                    var(--jk-red) 0%,
-
-                    var(--jk-red-light) 55%,
-
-                    #ff5a4e 100%
-
-                );
-
-
-
-            background-size: 150% 150%;
-
-
-
-            border: none;
-
-            border-radius: var(--radius-sm);
-
-
-
-            padding: 13px 32px;
-
-
-
-            cursor: pointer;
-
-
-
-            box-shadow: var(--shadow-red);
-
-
-
-            transition:
-
-                transform .18s ease,
-
-                box-shadow .25s ease,
-
-                background-position .5s ease;
-
-        }
-
-
-
-
-
-        button:hover:not(:disabled) {
-
-
-
-            background-position: 100% 50%;
-
-
-
-            transform: translateY(-2px);
-
-
-
-            box-shadow:
-
-                0 14px 34px -10px rgba(227, 6, 19, .7);
-
-        }
-
-
-
-
-
-        button:active:not(:disabled) {
-
-            transform: translateY(0);
-
-        }
-
-
-
-
-
-        button:disabled {
-
-            opacity: .6;
-
-            cursor: not-allowed;
-
-            transform: none;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           STATUS
-
-        ================================================= \*/
-
-
-
-        #status {
-
-            display: none;
-
-
-
-            margin-top: 18px;
-
-
-
-            font-size: 13.5px;
-
-            font-weight: 600;
-
-        }
-
-
-
-
-
-        #status.success,
-
-        #status.error,
-
-        #status.loading {
-
-
-
-            display: flex;
-
-            align-items: center;
-
-
-
-            gap: 10px;
-
-
-
-            padding: 13px 18px;
-
-
-
-            border-radius: var(--radius-sm);
-
-
-
-            line-height: 1.5;
-
-        }
-
-
-
-
-
-        #status.success {
-
-
-
-            color: #047857;
-
-
-
-            background: #ecfdf5;
-
-
-
-            border: 1px solid #a7f3d0;
-
-
-
-            box-shadow: 0 6px 18px -10px rgba(4, 120, 87, .35);
-
-        }
-
-
-
-
-
-        #status.error {
-
-
-
-            color: #b91c1c;
-
-
-
-            background: #fef2f2;
-
-
-
-            border: 1px solid #fecaca;
-
-
-
-            box-shadow: 0 6px 18px -10px rgba(185, 28, 28, .35);
-
-        }
-
-
-
-
-
-        #status.loading {
-
-
-
-            color: #1d4ed8;
-
-
-
-            background: #eff6ff;
-
-
-
-            border: 1px solid #bfdbfe;
-
-
-
-            box-shadow: 0 6px 18px -10px rgba(29, 78, 216, .35);
-
-        }
-
-
-
-
-
-        .spinner {
-
-
-
-            flex: 0 0 auto;
-
-
-
-            width: 15px;
-
-            height: 15px;
-
-
-
-            border: 2.5px solid currentColor;
-
-            border-top-color: transparent;
-
-
-
-            border-radius: 50%;
-
-
-
-            animation: spin .7s linear infinite;
-
-        }
-
-
-
-
-
-        @keyframes spin {
-
-            to { transform: rotate(360deg); }
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           FILTERS
-
-        ================================================= \*/
-
-
-
-        .filter-grid {
-
-
-
-            display: grid;
-
-
-
-            grid-template-columns: 2fr 1fr 1fr auto;
-
-
-
-            gap: 16px;
-
-
-
-            align-items: end;
-
-
-
-            margin: 20px 0 24px;
-
-
-
-            padding: 18px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #fbfdff 0%,
-
-                    #f7fafd 100%
-
-                );
-
-
-
-            border: 1px solid var(--line-soft);
-
-            border-radius: var(--radius);
-
-        }
-
-
-
-
-
-        .filter-item label {
-
-
-
-            display: block;
-
-
-
-            margin-bottom: 8px;
-
-
-
-            font-size: 11.5px;
-
-            font-weight: 700;
-
-
-
-            letter-spacing: .5px;
-
-            text-transform: uppercase;
-
-
-
-            color: var(--muted);
-
-        }
-
-
-
-
-
-        .filter-item select {
-
-
-
-            width: 100%;
-
-
-
-            padding: 12px 36px 12px 14px;
-
-
-
-            font-family: inherit;
-
-            font-size: 13.5px;
-
-            font-weight: 600;
-
-
-
-            color: var(--ink);
-
-
-
-            background-color: #fff;
-
-
-
-            background-image:
-
-                url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http\://www\.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
-
-
-
-            background-repeat: no-repeat;
-
-            background-position: right 12px center;
-
-            background-size: 15px;
-
-
-
-            border: 1px solid var(--line);
-
-            border-radius: var(--radius-sm);
-
-
-
-            appearance: none;
-
-
-
-            box-shadow:
-
-                0 1px 2px rgba(15, 23, 42, .03);
-
-
-
-            transition:
-
-                border-color .18s ease,
-
-                box-shadow .18s ease,
-
-                transform .18s ease;
-
-        }
-
-
-
-
-
-        .filter-item select:hover {
-
-            border-color: #cbd5e1;
-
-        }
-
-
-
-
-
-        .filter-item select:focus {
-
-
-
-            outline: none;
-
-
-
-            border-color: var(--jk-red);
-
-
-
-            box-shadow:
-
-                0 0 0 4px rgba(227, 6, 19, .12);
-
-        }
-
-
-
-
-
-        .filter-button button {
-
-            width: 100%;
-
-            padding: 13px 28px;
-
-        }
-
-
-
-
-
-        .sku-selected-title {
-
-
-
-            margin: 4px 0 6px;
-
-
-
-            padding: 14px 18px;
-
-
-
-            font-size: 15px;
-
-            font-weight: 800;
-
-
-
-            letter-spacing: -.1px;
-
-
-
-            color: var(--ink);
-
-
-
-            background:
-
-                linear-gradient(
-
-                    90deg,
-
-                    rgba(227, 6, 19, .09) 0%,
-
-                    rgba(227, 6, 19, .02) 55%,
-
-                    rgba(227, 6, 19, 0) 100%
-
-                );
-
-
-
-            border-left: 4px solid var(--jk-red);
-
-            border-radius: var(--radius-sm);
-
-
-
-            box-shadow:
-
-                inset 0 1px 0 rgba(255, 255, 255, .8);
-
-        }
-
-
-
-
-
-        .missing-info {
-
-
-
-            margin: 12px 0 18px;
-
-
-
-            padding: 13px 18px;
-
-
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-
-
-            color: #92400e;
-
-
-
-            background:
-
-                linear-gradient(90deg, #fffbeb, #fefce8);
-
-
-
-            border-left: 4px solid #f59e0b;
-
-            border-radius: var(--radius-sm);
-
-
-
-            box-shadow:
-
-                0 6px 18px -12px rgba(180, 83, 9, .35);
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           CHART
-
-        ================================================= \*/
-
-
-
-        .chart-wrapper {
-
-
-
-            position: relative;
-
-
-
-            height: 430px;
-
-
-
-            overflow-x: auto;
-
-            overflow-y: hidden;
-
-
-
-            min-width: 0;
-
-
-
-            padding: 8px 4px 4px;
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #ffffff 0%,
-
-                    #fcfdff 100%
-
-                );
-
-
-
-            border-radius: var(--radius);
-
-        }
-
-
-
-
-
-        .sku-chart-wrapper {
-
-            height: 500px;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           SLIM SCROLLBARS
-
-        ================================================= \*/
-
-
-
-        .table-wrapper,
-
-        .chart-wrapper {
-
-
-
-            scrollbar-width: thin;
-
-            scrollbar-color: #cbd5e1 #f1f5f9;
-
-        }
-
-
-
-
-
-        .table-wrapper::-webkit-scrollbar,
-
-        .chart-wrapper::-webkit-scrollbar {
-
-            height: 10px;
-
-            width: 10px;
-
-        }
-
-
-
-
-
-        .table-wrapper::-webkit-scrollbar-track,
-
-        .chart-wrapper::-webkit-scrollbar-track {
-
-            background: #f1f5f9;
-
-            border-radius: 8px;
-
-        }
-
-
-
-
-
-        .table-wrapper::-webkit-scrollbar-thumb,
-
-        .chart-wrapper::-webkit-scrollbar-thumb {
-
-            background: #cbd5e1;
-
-            border-radius: 8px;
-
-            border: 2px solid #f1f5f9;
-
-        }
-
-
-
-
-
-        .table-wrapper::-webkit-scrollbar-thumb:hover,
-
-        .chart-wrapper::-webkit-scrollbar-thumb:hover {
-
-            background: #94a3b8;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           TABLE
-
-        ================================================= \*/
-
-
-
-        .table-wrapper {
-
-
-
-            width: 100%;
-
-
-
-            overflow-x: auto;
-
-            overflow-y: hidden;
-
-
-
-            border: 1px solid var(--line);
-
-            border-radius: var(--radius);
-
-
-
-            background: #fff;
-
-
-
-            min-width: 0;
-
-
-
-            margin-top: 24px;
-
-
-
-            box-shadow:
-
-                0 2px 8px -4px rgba(15, 23, 42, .06);
-
-        }
-
-
-
-
-
-        table {
-
-
-
-            width: 100%;
-
-
-
-            border-collapse: separate;
-
-            border-spacing: 0;
-
-
-
-            font-size: 13px;
-
-        }
-
-
-
-
-
-        th {
-
-
-
-            position: sticky;
-
-            top: 0;
-
-            z-index: 2;
-
-
-
-            padding: 14px 12px;
-
-
-
-            font-size: 11px;
-
-            font-weight: 800;
-
-
-
-            letter-spacing: .55px;
-
-            text-transform: uppercase;
-
-
-
-            text-align: center;
-
-
-
-            white-space: nowrap;
-
-
-
-            color: var(--slate);
-
-
-
-            background:
-
-                linear-gradient(
-
-                    180deg,
-
-                    #f8fafc 0%,
-
-                    #f1f5f9 100%
-
-                );
-
-
-
-            border-bottom: 2px solid var(--line);
-
-        }
-
-
-
-
-
-        td {
-
-
-
-            padding: 12px 12px;
-
-
-
-            text-align: center;
-
-
-
-            white-space: nowrap;
-
-
-
-            color: #334155;
-
-
-
-            font-weight: 500;
-
-
-
-            border-bottom: 1px solid var(--line-soft);
-
-
-
-            transition: background .15s ease;
-
-        }
-
-
-
-
-
-        tbody tr:nth-child(even) td {
-
-            background: #fbfdff;
-
-        }
-
-
-
-
-
-        tbody tr:hover td {
-
-            background: #f1f7ff;
-
-        }
-
-
-
-
-
-        tbody tr:last-child td {
-
-            border-bottom: none;
-
-        }
-
-
-
-
-
-        tbody td:first-child {
-
-
-
-            font-weight: 700;
-
-
-
-            color: var(--ink);
-
-        }
-
-
-
-
-
-        .empty-cell {
-
-
-
-            padding: 40px 16px !important;
-
-
-
-            font-style: italic;
-
-
-
-            color: var(--faint) !important;
-
-
-
-            background: #fff !important;
-
-        }
-
-
-
-
-
-        .missing-row {
-
-            background: #f7f7f7;
-
-            color: #777;
-
-        }
-
-
-
-
-
-        .missing-row strong {
-
-            color: #555;
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           FOOTER
-
-        ================================================= \*/
-
-
-
-        .app-footer {
-
-
-
-            padding: 26px 30px 40px;
-
-
-
-            text-align: center;
-
-
-
-            font-size: 12.5px;
-
-
-
-            color: var(--faint);
-
-        }
-
-
-
-
-
-        .app-footer strong {
-
-            color: var(--slate);
-
-        }
-
-
-
-
-
-        /\* =================================================
-
-           RESPONSIVE
-
-        ================================================= \*/
-
-
-
-        @media (max-width: 900px) {
-
-
-
-            .filter-grid {
-
-                grid-template-columns: 1fr 1fr;
-
-            }
-
-
-
-            .filter-button {
-
-                grid-column: 1 / -1;
-
-            }
-
-
-
-            .brand-divider {
-
-                display: none;
-
-            }
-
-        }
-
-
-
-
-
-        @media (max-width: 700px) {
-
-
-
-            .header-inner {
-
-                padding: 14px 18px;
-
-                gap: 16px;
-
-            }
-
-
-
-            .header-brand {
-
-                gap: 14px;
-
-            }
-
-
-
-            .header-text h1 {
-
-                font-size: 17px;
-
-                white-space: normal;
-
-            }
-
-
-
-            .header-text p {
-
-                font-size: 12px;
-
-                flex-wrap: wrap;
-
-                gap: 6px;
-
-            }
-
-
-
-            .logo-badge {
-
-                width: 58px;
-
-                height: 58px;
-
-            }
-
-
-
-            .logo-fallback {
-
-                font-size: 15px;
-
-            }
-
-
-
-            .container {
-
-                padding: 20px 16px 52px;
-
-            }
-
-
-
-            .card {
-
-                padding: 20px 18px;
-
-                border-radius: var(--radius);
-
-            }
-
-
-
-            .filter-grid {
-
-                padding: 14px;
-
-            }
-
-        }
-
-
-
-
-
-        @media (max-width: 560px) {
-
-
-
-            .filter-grid {
-
-                grid-template-columns: 1fr;
-
-            }
-
-
-
-            .header-meta {
-
-                width: 100%;
-
-                justify-content: flex-start;
-
-            }
-
-        }
-
-
-
-    \</style>
-
-
-
-\</head>
-
-
-
-
-
-\<body>
-
-
-
-
-
-\<!-- =====================================================
-
-     HEADER
-
-\====================================================== -->
-
-
-
-\<header class="app-header">
-
-
-
-    \<div class="header-grid">\</div>
-
-
-
-    \<div class="header-inner">
-
-
-
-        \<div class="header-brand">
-
-
-
-            \<div class="logo-badge">
-
-
-
-                \<img
-
-                    src="static/jktyre-tyre-logo.png"
-
-                    alt="JK Tyre"
-
-                    class="jk-logo"
-
-                    onerror="this.style.display='none';document.getElementById('logoFallback').classList.add('show');">
-
-
-
-                \<span class="logo-fallback" id="logoFallback">JK\</span>
-
-
-
-            \</div>
-
-
-
-            \<div class="brand-divider">\</div>
-
-
-
-            \<div class="header-text">
-
-
-
-                \<h1>
-
-                    SKU Monthly \<span class="accent">Running Weight\</span> Analysis
-
-                \</h1>
-
-
-
-                \<p>
-
-                    Month-wise Spec vs Average Running Weight
-
-                    \<span class="tag">Live\</span>
-
-                \</p>
-
-
-
-            \</div>
-
-
-
-        \</div>
-
-
-
-        \<div class="header-meta">
-
-
-
-            \<span class="chip" id="todayChip">
-
-                \<span class="dot">\</span>
-
-                Loading…
-
-            \</span>
-
-
-
-        \</div>
-
-
-
-    \</div>
-
-
-
-    \<div class="header-rule">\</div>
-
-
-
-\</header>
-
-
-
-
-
-\<main class="container">
-
-
-
-
-
-    \<!-- =================================================
-
-         UPLOAD
-
-    ================================================== -->
-
-
-
-    \<section class="card">
-
-
-
-        \<h2>Upload Monthly Excel\</h2>
-
-
-
-        \<p>
-
-            The workbook can contain multiple month-wise sheets.
-
-            Every sheet must contain
-
-            \<strong>Size\</strong>,
-
-            \<strong>Spec (kg)\</strong> and
-
-            \<strong>Actual (kg)\</strong>.
-
-        \</p>
-
-
-
-        \<form id="uploadForm" enctype="multipart/form-data">
-
-
-
-            \<div class="upload-area" id="dropZone">
-
-
-
-                \<div class="upload-icon">
-
-                    \<svg viewBox="0 0 24 24" fill="none"
-
-                         stroke="currentColor" stroke-width="2"
-
-                         stroke-linecap="round" stroke-linejoin="round">
-
-                        \<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-
-                        \<polyline points="17 8 12 3 7 8"/>
-
-                        \<line x1="12" y1="3" x2="12" y2="15"/>
-
-                    \</svg>
-
-                \</div>
-
-
-
-                \<p class="upload-title">
-
-                    Drag &amp; drop your Excel file here
-
-                \</p>
-
-
-
-                \<p class="upload-hint">
-
-                    or click to browse &middot; .xlsx, .xls
-
-                \</p>
-
-
-
-                \<input
-
-                    type="file"
-
-                    id="file"
-
-                    name="file"
-
-                    accept=".xlsx,.xls"
-
-                    class="file-input">
-
-
-
-                \<div class="file-name" id="fileName">\</div>
-
-
-
-                \<button type="submit" id="uploadBtn">
-
-                    Upload &amp; Analyze
-
-                \</button>
-
-
-
-            \</div>
-
-
-
-        \</form>
-
-
-
-        \<div id="status">\</div>
-
-
-
-    \</section>
-
-
-
-
-
-    \<!-- =================================================
-
-         SKU MONTHLY RUNNING WEIGHT ANALYSIS
-
-    ================================================== -->
-
-
-
-    \<section class="card" id="skuAnalysisCard">
-
-
-
-        \<h2>SKU Monthly Running Weight Analysis\</h2>
-
-
-
-        \<p class="table-note">
-
-            SKUs may appear in any order inside each monthly sheet. The dashboard first
-
-            groups the supplied records by SKU and arranges each SKU chronologically by
-
-            month. It does not recalculate the supplied Spec, Actual, bucket counts,
-
-            Total tyres or % adher. values. Missing months remain visible as
-
-            \<strong>No data\</strong> and are never treated as zero.
-
-        \</p>
-
-
-
-        \<div class="filter-grid">
-
-
-
-            \<div class="filter-item">
-
-                \<label for="skuSelect">SKU\</label>
-
-                \<select id="skuSelect">
-
-                    \<option value="">Upload Excel first\</option>
-
-                \</select>
-
-            \</div>
-
-
-
-            \<div class="filter-item">
-
-                \<label for="fromMonth">From Month\</label>
-
-                \<select id="fromMonth">
-
-                    \<option value="">-\</option>
-
-                \</select>
-
-            \</div>
-
-
-
-            \<div class="filter-item">
-
-                \<label for="toMonth">To Month\</label>
-
-                \<select id="toMonth">
-
-                    \<option value="">-\</option>
-
-                \</select>
-
-            \</div>
-
-
-
-            \<div class="filter-item filter-button">
-
-                \<button type="button" id="applySkuFilter">Apply\</button>
-
-            \</div>
-
-
-
-        \</div>
-
-
-
-        \<div class="sku-selected-title" id="skuSelectedTitle">Select a SKU\</div>
-
-
-
-        \<div id="skuMissingInfo" class="missing-info" style="display:none;">\</div>
-
-
-
-        \<div class="chart-wrapper sku-chart-wrapper">
-
-            \<canvas id="skuMonthlyChart">\</canvas>
-
-        \</div>
-
-
-
-        \<div class="table-wrapper">
-
-
-
-            \<table>
-
-
-
-                \<thead>
-
-                    \<tr>
-
-                        \<th>Month\</th>
-
-                        \<th>Spec\</th>
-
-                        \<th>Average Running Weight (KG)\</th>
-
-                        \<th>-2%\</th>
-
-                        \<th>+2%\</th>
-
-                    \</tr>
-
-                \</thead>
-
-
-
-                \<tbody id="skuMonthTable">
-
-                    \<tr>
-
-                        \<td colspan="5" class="empty-cell">
-
-                            Upload an Excel file to view SKU level monthly analysis.
-
-                        \</td>
-
-                    \</tr>
-
-                \</tbody>
-
-
-
-            \</table>
-
-
-
-        \</div>
-
-
-
-    \</section>
-
-
-
-
-
-\</main>
-
-
-
-
-
-\<footer class="app-footer">
-
-    \<strong>JK Tyre\</strong> &middot; SKU Monthly Running Weight Analysis &middot;
-
-    Supplied data is displayed as-is without recalculation.
-
-\</footer>
-
-
-
-
-
-\<script>
-
-
-
-/\* =========================================================
-
-   CHART GLOBAL DEFAULTS
-
-\========================================================= \*/
-
-
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JK Tyre · SKU Monthly Running Weight Analysis</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* =====================================================
+   DESIGN TOKENS
+===================================================== */
+:root{
+  /* Brand */
+  --jk-red:        #e30613;
+  --jk-red-light:  #ff4438;
+  --jk-red-deep:   #b30510;
+  --jk-red-glow:   rgba(227, 6, 19, .35);
+  --jk-red-tint:   rgba(227, 6, 19, .08);
+
+  /* Neutrals */
+  --ink:           #0b1220;
+  --ink-2:         #1e293b;
+  --slate:         #475569;
+  --muted:         #64748b;
+  --faint:         #94a3b8;
+
+  /* Surfaces */
+  --surface:       #ffffff;
+  --surface-2:     #fbfdff;
+  --surface-3:     #f5f8fc;
+
+  /* Lines */
+  --line:          #e5eaf2;
+  --line-2:        #eef2f7;
+  --line-strong:   #cbd5e1;
+
+  /* Background */
+  --bg:            #eef2f7;
+
+  /* Semantic */
+  --ok:            #059669;
+  --ok-bg:         #ecfdf5;
+  --ok-line:       #a7f3d0;
+
+  --bad:           #dc2626;
+  --bad-bg:        #fef2f2;
+  --bad-line:      #fecaca;
+
+  --warn:          #d97706;
+  --warn-bg:       #fffbeb;
+  --warn-line:     #fde68a;
+
+  --info:          #2563eb;
+  --info-bg:       #eff6ff;
+  --info-line:     #bfdbfe;
+
+  /* Radii */
+  --radius-xs:     8px;
+  --radius-sm:     12px;
+  --radius:        16px;
+  --radius-lg:     22px;
+
+  /* Shadows */
+  --shadow-xs:     0 1px 2px rgba(15,23,42,.04);
+  --shadow-sm:     0 2px 6px rgba(15,23,42,.05);
+  --shadow:        0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.18);
+  --shadow-lg:     0 2px 4px rgba(15,23,42,.05), 0 26px 48px -22px rgba(15,23,42,.28);
+  --shadow-red:    0 10px 26px -10px rgba(227,6,19,.55);
+
+  --font:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif;
+}
+
+/* =====================================================
+   BASE
+===================================================== */
+*,*::before,*::after{box-sizing:border-box;}
+
+html{
+  scroll-behavior:smooth;
+  overflow-x:hidden;
+  max-width:100%;
+  -webkit-text-size-adjust:100%;
+}
+
+body{
+  margin:0;
+  font-family:var(--font);
+  font-size:14px;
+  color:var(--ink-2);
+  background:
+    radial-gradient(1400px 720px at 100% -18%, #dbe7ff 0%, transparent 58%),
+    radial-gradient(1100px 640px at -12% 4%, #ffe1e4 0%, transparent 52%),
+    radial-gradient(900px 900px at 50% 120%, #e6f0ff 0%, transparent 60%),
+    var(--bg);
+  background-attachment:fixed;
+  overflow-x:hidden;
+  max-width:100%;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+}
+
+img{max-width:100%;display:block;}
+
+::selection{background:rgba(227,6,19,.18);color:var(--ink);}
+
+/* =====================================================
+   HEADER — PROFESSIONAL DARK
+===================================================== */
+.app-header{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  color:#fff;
+  background:
+    radial-gradient(900px 480px at 84% -40%, rgba(227,6,19,.34) 0%, transparent 62%),
+    radial-gradient(720px 400px at 2% 132%, rgba(37,99,235,.20) 0%, transparent 62%),
+    linear-gradient(125deg, #060912 0%, #0c1222 38%, #131c33 68%, #1c2745 100%);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.05) inset,
+    0 26px 60px -40px rgba(0,0,0,.9);
+}
+
+/* Top red accent line */
+.app-header::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;height:3px;z-index:5;
+  background:linear-gradient(90deg,
+    var(--jk-red) 0%,
+    var(--jk-red-light) 26%,
+    #ffc2c6 52%,
+    rgba(227,6,19,.20) 78%,
+    transparent 100%);
+}
+
+/* Soft animated red halo */
+.app-header::after{
+  content:"";
+  position:absolute;
+  right:-180px;top:-220px;
+  width:640px;height:640px;border-radius:50%;
+  z-index:0;pointer-events:none;
+  background:radial-gradient(circle,
+    rgba(227,6,19,.40) 0%,
+    rgba(227,6,19,0) 62%);
+  animation:headerGlow 9s ease-in-out infinite;
+}
+@keyframes headerGlow{
+  0%,100%{opacity:.82;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.09);}
+}
+
+/* Fine technical grid */
+.header-grid{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.040) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.040) 1px, transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(circle at 72% 30%, #000 0%, transparent 72%);
+  mask-image:radial-gradient(circle at 72% 30%, #000 0%, transparent 72%);
+}
+
+.header-inner{
+  position:relative;z-index:3;
+  max-width:1600px;margin:0 auto;
+  padding:24px 30px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:26px;flex-wrap:wrap;
+}
+
+/* ---------- Brand block ---------- */
+.header-brand{display:flex;align-items:center;gap:20px;min-width:0;}
+
+.logo-badge{
+  position:relative;flex:0 0 auto;
+  width:68px;height:68px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 38%,
+      rgba(255,255,255,.16) 0%,
+      rgba(255,255,255,.04) 55%,
+      rgba(255,255,255,0) 78%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.16),
+    0 0 0 5px rgba(255,255,255,.045),
+    0 14px 32px -12px rgba(0,0,0,.75);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s ease;
+}
+.logo-badge:hover{
+  transform:translateY(-3px) scale(1.04);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.24),
+    0 0 0 7px rgba(227,6,19,.16),
+    0 18px 40px -14px rgba(0,0,0,.85);
+}
+.logo-badge::after{
+  content:"";
+  position:absolute;inset:-14px;border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(227,6,19,.48) 0%,
+    rgba(227,6,19,0) 66%);
+  z-index:-1;pointer-events:none;
+  animation:logoHalo 4.5s ease-in-out infinite;
+}
+@keyframes logoHalo{
+  0%,100%{opacity:.7;transform:scale(1);}
+  50%{opacity:1;transform:scale(1.13);}
+}
+.jk-logo{
+  width:100%;height:100%;object-fit:contain;
+  border-radius:50%;padding:4px;
+}
+.logo-fallback{
+  display:none;font-size:22px;font-weight:900;letter-spacing:1.6px;
+  background:linear-gradient(135deg,var(--jk-red-light),#ffd6d8);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  white-space:nowrap;
+}
+.logo-fallback.show{display:inline-block;}
+
+.brand-divider{
+  width:1px;height:52px;flex:0 0 auto;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.28),transparent);
+}
+
+.header-text{min-width:0;}
+
+.header-kicker{
+  display:inline-flex;align-items:center;gap:9px;
+  margin-bottom:9px;
+  font-size:10.5px;font-weight:800;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.62);
+}
+.header-kicker::before{
+  content:"";width:20px;height:2px;border-radius:2px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--jk-red-light),#ffc2c6);
+  box-shadow:0 0 10px rgba(227,6,19,.9);
+}
+
+.header-text h1{
+  margin:0;
+  font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.2;
+  color:#ffffff;
+  text-shadow:0 2px 14px rgba(0,0,0,.35);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.header-text h1 .accent{
+  background:linear-gradient(90deg,#ff6a6a 0%,#ffb3b8 55%,#ffd6d8 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.header-text p{
+  display:flex;align-items:center;gap:10px;
+  margin:9px 0 0;
+  font-size:12.5px;font-weight:500;letter-spacing:.25px;
+  color:rgba(219,214,240,.70);
+}
+
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 11px;font-size:10.5px;font-weight:800;
+  letter-spacing:.7px;text-transform:uppercase;
+  color:#ffd6d8;
+  background:rgba(227,6,19,.22);
+  border:1px solid rgba(227,6,19,.48);
+  border-radius:999px;
+  box-shadow:0 0 0 3px rgba(227,6,19,.08);
+}
+.tag::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:#ff6a6a;
+  box-shadow:0 0 0 3px rgba(255,106,106,.28);
+  animation:pulseDot 2.4s ease-in-out infinite;
+}
+
+/* ---------- Meta chips ---------- */
+.header-meta{display:flex;align-items:center;gap:12px;flex:0 0 auto;}
+
+.meta-chip{
+  display:inline-flex;align-items:center;gap:11px;
+  padding:10px 17px;
+  border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(10px) saturate(150%);
+  backdrop-filter:blur(10px) saturate(150%);
+  box-shadow:0 1px 0 rgba(255,255,255,.10) inset;
+  transition:background .2s ease,border-color .2s ease,transform .2s ease,box-shadow .2s ease;
+  white-space:nowrap;
+}
+.meta-chip:hover{
+  background:rgba(255,255,255,.13);
+  border-color:rgba(255,255,255,.26);
+  transform:translateY(-1px);
+  box-shadow:0 8px 22px -14px rgba(0,0,0,.9), 0 1px 0 rgba(255,255,255,.14) inset;
+}
+.meta-chip > svg{
+  width:16px;height:16px;flex:0 0 auto;
+  color:rgba(255,200,200,.95);
+}
+.meta-chip-text{display:flex;flex-direction:column;line-height:1.25;}
+.meta-chip-text small{
+  font-size:9.5px;font-weight:800;letter-spacing:.95px;
+  text-transform:uppercase;color:rgba(206,198,238,.55);
+}
+.meta-chip-text strong{
+  font-size:13px;font-weight:700;letter-spacing:.15px;
+  color:#ffffff;
+  font-variant-numeric:tabular-nums;
+}
+
+.meta-chip.live .live-dot{
+  width:8px;height:8px;border-radius:50%;flex:0 0 auto;
+  background:#22c55e;
+  box-shadow:0 0 0 4px rgba(34,197,94,.20);
+  animation:pulseDot 2.4s ease-in-out infinite;
+}
+@keyframes pulseDot{
+  0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.24);}
+  50%{box-shadow:0 0 0 7px rgba(34,197,94,.05);}
+}
+
+.header-rule{
+  position:relative;z-index:3;height:3px;
+  background:linear-gradient(90deg,
+    var(--jk-red) 0%,
+    var(--jk-red) 28%,
+    rgba(227,6,19,.15) 68%,
+    transparent 100%);
+}
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+.container{
+  max-width:1600px;margin:0 auto;
+  padding:34px 30px 76px;width:100%;
+  overflow-x:clip;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+.card{
+  position:relative;
+  background:linear-gradient(180deg, #ffffff 0%, #fdfeff 100%);
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  padding:28px 30px;
+  margin-bottom:26px;
+  box-shadow:var(--shadow);
+  transition:box-shadow .35s ease, transform .35s ease, border-color .35s ease;
+  min-width:0;overflow:hidden;
+}
+.card::before{
+  content:"";
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(227,6,19,.14) 26%,
+    rgba(37,99,235,.10) 66%,
+    transparent 100%);
+  opacity:0;
+  transition:opacity .35s ease;
+}
+.card:hover{
+  box-shadow:var(--shadow-lg);
+  transform:translateY(-2px);
+  border-color:#dbe4f0;
+}
+.card:hover::before{opacity:1;}
+
+.card h2{
+  display:flex;align-items:center;gap:12px;
+  margin:0 0 10px;
+  font-size:18px;font-weight:800;
+  letter-spacing:-.25px;
+  color:var(--ink);
+}
+.card h2::before{
+  content:"";width:5px;height:20px;border-radius:4px;flex:0 0 auto;
+  background:linear-gradient(180deg,var(--jk-red),var(--jk-red-light));
+  box-shadow:0 4px 12px -2px var(--jk-red-glow);
+}
+.card p{
+  margin:0 0 18px;
+  font-size:13.5px;line-height:1.68;
+  color:var(--muted);
+}
+.card p strong{color:var(--ink-2);font-weight:700;}
+.section-note{
+  margin:2px 0 0 !important;
+  font-size:13px;line-height:1.72;
+  color:var(--muted);max-width:1080px;
+}
+
+/* =====================================================
+   UPLOAD META
+===================================================== */
+.upload-meta{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin:0 0 20px;
+}
+.upload-meta-item{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 12px;
+  font-size:11.5px;font-weight:600;
+  color:var(--slate);
+  background:var(--surface-3);
+  border:1px solid var(--line);
+  border-radius:999px;
+}
+.upload-meta-item svg{
+  width:13px;height:13px;
+  color:var(--jk-red);flex:0 0 auto;
+}
+.upload-meta-item code{
+  font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size:10.5px;font-weight:700;
+  color:var(--jk-red-deep);
+  background:rgba(227,6,19,.08);
+  padding:1px 6px;border-radius:5px;
+  letter-spacing:.3px;
+}
+
+/* =====================================================
+   UPLOAD AREA
+===================================================== */
+.upload-area{
+  position:relative;
+  padding:42px 26px 38px;
+  text-align:center;
+  background:linear-gradient(180deg, #fbfdff 0%, #f4f8fe 100%);
+  border:2px dashed #c8d6e5;
+  border-radius:var(--radius-lg);
+  cursor:pointer;
+  transition:
+    border-color .3s ease,
+    background .3s ease,
+    transform .3s ease,
+    box-shadow .3s ease;
+  overflow:hidden;
+}
+.upload-area::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 30%, rgba(227,6,19,.06), transparent 65%);
+  opacity:0;transition:opacity .3s ease;pointer-events:none;
+}
+.upload-area:hover{
+  border-color:var(--jk-red);
+  background:linear-gradient(180deg, #fff 0%, #fff6f6 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(227,6,19,.06),
+    0 14px 34px -20px rgba(227,6,19,.42);
+}
+.upload-area:hover::before{opacity:1;}
+.upload-area.dragover{
+  border-color:var(--jk-red);
+  border-style:solid;
+  background:#fff1f2;
+  transform:scale(1.006);
+  box-shadow:
+    inset 0 0 0 2px rgba(227,6,19,.12),
+    0 18px 44px -20px rgba(227,6,19,.58);
+}
+.upload-icon{
+  display:grid;place-items:center;
+  width:70px;height:70px;
+  margin:0 auto 18px;
+  color:var(--jk-red);
+  background:linear-gradient(145deg, rgba(227,6,19,.14), rgba(227,6,19,.05));
+  border-radius:20px;
+  box-shadow:0 10px 24px -12px rgba(227,6,19,.42);
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.upload-area:hover .upload-icon{
+  transform:translateY(-4px) rotate(-4deg) scale(1.06);
+}
+.upload-icon svg{width:30px;height:30px;}
+
+.upload-title{
+  margin:0 0 7px !important;
+  font-size:16px !important;font-weight:700;
+  color:var(--ink) !important;letter-spacing:-.1px;
+}
+.upload-hint{
+  margin:0 0 22px !important;
+  font-size:12.5px !important;
+  color:var(--faint) !important;
+}
+
+.file-input{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+.file-name{
+  display:none;
+  margin:0 auto 18px;
+  max-width:480px;
+  padding:11px 18px;
+  font-size:12.5px;font-weight:600;
+  color:var(--info);
+  background:linear-gradient(180deg, #e0f2fe, #d8ecfd);
+  border:1px solid var(--info-line);
+  border-radius:12px;
+  word-break:break-all;
+  box-shadow:0 6px 16px -8px rgba(37,99,235,.30);
+  align-items:center;
+  gap:10px;
+}
+.file-name.show{display:inline-flex;}
+.file-name::before{
+  content:"";width:8px;height:8px;border-radius:50%;
+  background:var(--ok);flex:0 0 auto;
+  box-shadow:0 0 0 3px rgba(5,150,105,.18);
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+button{
+  font-family:inherit;
+  font-size:14px;font-weight:700;
+  letter-spacing:.25px;
+  color:#fff;
+  background:linear-gradient(135deg, var(--jk-red) 0%, var(--jk-red-light) 55%, #ff5a4e 100%);
+  background-size:150% 150%;
+  border:none;border-radius:var(--radius-sm);
+  padding:13px 32px;cursor:pointer;
+  box-shadow:var(--shadow-red);
+  transition:transform .18s ease, box-shadow .25s ease, background-position .5s ease;
+}
+button:hover:not(:disabled){
+  background-position:100% 50%;
+  transform:translateY(-2px);
+  box-shadow:0 14px 34px -10px rgba(227,6,19,.70);
+}
+button:active:not(:disabled){transform:translateY(0);}
+button:focus-visible{
+  outline:none;
+  box-shadow:0 14px 34px -10px rgba(227,6,19,.70), 0 0 0 4px rgba(227,6,19,.20);
+}
+button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* =====================================================
+   STATUS
+===================================================== */
+#status{display:none;margin-top:18px;font-size:13.5px;font-weight:600;}
+#status.success,#status.error,#status.loading{
+  display:flex;align-items:center;gap:11px;
+  padding:13px 18px;border-radius:var(--radius-sm);
+  line-height:1.5;
+  animation:slideDown .35s ease;
+}
+@keyframes slideDown{
+  from{opacity:0;transform:translateY(-6px);}
+  to{opacity:1;transform:translateY(0);}
+}
+#status.success{
+  color:#047857;
+  background:var(--ok-bg);
+  border:1px solid var(--ok-line);
+  box-shadow:0 6px 20px -12px rgba(5,150,105,.40);
+}
+#status.error{
+  color:#b91c1c;
+  background:var(--bad-bg);
+  border:1px solid var(--bad-line);
+  box-shadow:0 6px 20px -12px rgba(220,38,38,.40);
+}
+#status.loading{
+  color:#1d4ed8;
+  background:var(--info-bg);
+  border:1px solid var(--info-line);
+  box-shadow:0 6px 20px -12px rgba(37,99,235,.40);
+}
+
+.spinner{
+  flex:0 0 auto;width:15px;height:15px;
+  border:2.5px solid currentColor;border-top-color:transparent;
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* =====================================================
+   FILTER GRID
+===================================================== */
+.filter-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr auto;
+  gap:16px;
+  align-items:end;
+  margin:20px 0 24px;
+  padding:18px;
+  background:linear-gradient(180deg, #fbfdff 0%, #f7fafd 100%);
+  border:1px solid var(--line-2);
+  border-radius:var(--radius);
+}
+.filter-item label{
+  display:flex;align-items:center;gap:7px;
+  margin-bottom:8px;
+  font-size:10.5px;font-weight:800;
+  letter-spacing:.8px;text-transform:uppercase;
+  color:var(--muted);
+}
+.filter-item label svg{
+  width:12px;height:12px;color:var(--jk-red);
+}
+.filter-item select{
+  width:100%;
+  padding:12px 36px 12px 14px;
+  font-family:inherit;font-size:13.5px;font-weight:600;
+  color:var(--ink);
+  background-color:#fff;
+  background-image:
+    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:15px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-sm);
+  appearance:none;-webkit-appearance:none;
+  box-shadow:0 1px 2px rgba(15,23,42,.03);
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+.filter-item select:hover{border-color:var(--line-strong);}
+.filter-item select:focus{
+  outline:none;
+  border-color:var(--jk-red);
+  box-shadow:0 0 0 4px rgba(227,6,19,.12);
+}
+.filter-button button{
+  width:100%;
+  padding:13px 28px;
+}
+
+/* =====================================================
+   SKU SELECTED BAR
+===================================================== */
+.sku-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+  margin:6px 0 12px;
+  padding:16px 22px;
+  font-size:15px;font-weight:800;letter-spacing:-.1px;
+  color:var(--ink);
+  background:linear-gradient(90deg,
+    rgba(227,6,19,.09) 0%,
+    rgba(227,6,19,.02) 55%,
+    rgba(227,6,19,0) 100%);
+  border-left:4px solid var(--jk-red);
+  border-radius:var(--radius-sm);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+.sku-bar .meta{
+  font-size:12px;font-weight:600;color:var(--muted);
+  display:inline-flex;align-items:center;gap:8px;
+}
+.sku-bar .meta::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--jk-red);opacity:.6;
+}
+
+/* =====================================================
+   MISSING INFO
+===================================================== */
+.missing-info{
+  display:flex;gap:10px;align-items:flex-start;
+  margin:12px 0 18px;
+  padding:13px 18px;
+  font-size:12.5px;line-height:1.65;
+  color:#92400e;
+  background:linear-gradient(90deg, #fffbeb, #fefce8);
+  border-left:4px solid var(--warn);
+  border-radius:var(--radius-sm);
+  box-shadow:0 6px 18px -12px rgba(180,83,9,.35);
+}
+.missing-info svg{width:16px;height:16px;flex:0 0 auto;margin-top:1px;}
+.missing-info strong{color:#7a4b0f;font-weight:800;}
+
+/* =====================================================
+   KPI STRIP
+===================================================== */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:16px;
+  margin:22px 0 24px;
+}
+.kpi{
+  position:relative;
+  padding:20px 20px 18px;
+  background:#ffffff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.kpi::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg, var(--jk-red), var(--jk-red-light));
+  opacity:.85;
+}
+.kpi.is-ok::before{background:linear-gradient(90deg, #6ee7b7, var(--ok));}
+.kpi.is-bad::before{background:linear-gradient(90deg, #fca5a5, var(--bad));}
+.kpi.is-info::before{background:linear-gradient(90deg, #93c5fd, var(--info));}
+.kpi.is-neutral::before{background:linear-gradient(90deg, #cbd5e1, #94a3b8);}
+
+.kpi:hover{
+  transform:translateY(-3px);
+  border-color:#dbe4f0;
+  box-shadow:0 18px 34px -24px rgba(15,23,42,.4);
+}
+
+.kpi-top{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:10px;margin-bottom:12px;
+}
+.kpi-label{
+  font-size:10.5px;font-weight:800;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--muted);
+  line-height:1.3;
+}
+.kpi-icon{
+  width:30px;height:30px;flex:0 0 auto;
+  display:grid;place-items:center;
+  border-radius:9px;
+  color:var(--jk-red);
+  background:rgba(227,6,19,.09);
+}
+.kpi.is-ok .kpi-icon{color:var(--ok);background:rgba(5,150,105,.11);}
+.kpi.is-bad .kpi-icon{color:var(--bad);background:rgba(220,38,38,.11);}
+.kpi.is-info .kpi-icon{color:var(--info);background:rgba(37,99,235,.11);}
+.kpi.is-neutral .kpi-icon{color:var(--muted);background:rgba(100,116,139,.11);}
+.kpi-icon svg{width:15px;height:15px;}
+
+.kpi-value{
+  font-size:25px;font-weight:800;letter-spacing:-.7px;
+  color:var(--ink);line-height:1.1;
+  display:flex;align-items:baseline;gap:5px;
+  font-variant-numeric:tabular-nums;
+}
+.kpi-value .unit{
+  font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0;
+}
+.kpi-sub{
+  margin-top:9px;font-size:11.5px;font-weight:600;
+  color:var(--faint);
+}
+
+/* =====================================================
+   CHART
+===================================================== */
+.chart-wrapper{
+  position:relative;
+  min-width:0;
+  height:460px;
+  padding:16px 18px 12px;
+  background:linear-gradient(180deg, #ffffff 0%, #fdfdff 100%);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+/* =====================================================
+   SCROLLBARS
+===================================================== */
+.table-wrapper{
+  scrollbar-width:thin;
+  scrollbar-color:#cbd5e1 #f1f5f9;
+}
+.table-wrapper::-webkit-scrollbar{height:10px;width:10px;}
+.table-wrapper::-webkit-scrollbar-track{background:#f1f5f9;border-radius:8px;}
+.table-wrapper::-webkit-scrollbar-thumb{
+  background:#cbd5e1;border-radius:8px;border:2px solid #f1f5f9;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover{background:#94a3b8;}
+
+/* =====================================================
+   TABLE
+===================================================== */
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  background:#fff;
+  min-width:0;
+  margin-top:8px;
+  box-shadow:0 2px 8px -4px rgba(15,23,42,.06);
+}
+table{
+  width:100%;border-collapse:separate;border-spacing:0;
+  font-size:13px;
+}
+th{
+  position:sticky;top:0;z-index:2;
+  padding:15px 14px;
+  font-size:10.5px;font-weight:800;
+  letter-spacing:.6px;text-transform:uppercase;
+  text-align:center;white-space:nowrap;
+  color:var(--slate);
+  background:linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom:2px solid var(--line);
+}
+td{
+  padding:13px 14px;
+  text-align:center;white-space:nowrap;
+  color:#334155;font-weight:500;
+  border-bottom:1px solid var(--line-2);
+  transition:background .15s ease;
+  font-variant-numeric:tabular-nums;
+}
+tbody tr:nth-child(even) td{background:#fbfdff;}
+tbody tr:hover td{background:#f1f7ff;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{font-weight:700;color:var(--ink);}
+
+tr.row-out td{background:#fef2f2 !important;}
+tr.row-out:hover td{background:#fde4e4 !important;}
+
+tr.missing-row td{
+  background:#fdfbf8 !important;
+  color:var(--faint) !important;
+  font-style:italic;font-weight:600;
+}
+tr.missing-row:hover td{background:#f9f5f0 !important;}
+
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 12px;border-radius:999px;
+  font-size:11px;font-weight:800;letter-spacing:.35px;
+  white-space:nowrap;
+}
+.badge.ok{
+  color:var(--ok);
+  background:var(--ok-bg);
+  border:1px solid var(--ok-line);
+}
+.badge.bad{
+  color:var(--bad);
+  background:var(--bad-bg);
+  border:1px solid var(--bad-line);
+}
+.badge::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:currentColor;
+}
+
+.empty-cell{
+  padding:52px 16px !important;
+  font-style:italic;
+  color:var(--faint) !important;
+  background:#fff !important;
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:70px 20px;text-align:center;
+  position:relative;
+}
+.empty-state::before{
+  content:"";
+  position:absolute;
+  width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle, rgba(227,6,19,.07), transparent 65%);
+  pointer-events:none;
+}
+.empty-state svg{
+  width:54px;height:54px;
+  color:var(--jk-red);
+  position:relative;
+  opacity:.7;
+}
+.empty-state h3{
+  margin:0;font-size:17px;font-weight:800;
+  color:var(--ink);position:relative;letter-spacing:-.2px;
+}
+.empty-state p{
+  margin:0;font-size:13.5px;color:var(--muted);
+  max-width:440px;position:relative;line-height:1.7;
+}
+
+.hidden{display:none !important;}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+.app-footer{
+  padding:26px 30px 46px;
+  text-align:center;
+  font-size:12.5px;
+  color:var(--faint);
+  border-top:1px solid var(--line-2);
+  margin-top:12px;
+}
+.app-footer strong{color:var(--slate);font-weight:800;}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width:1000px){
+  .filter-grid{grid-template-columns:1fr 1fr;}
+  .filter-button{grid-column:1 / -1;}
+}
+
+@media (max-width:760px){
+  .header-inner{padding:20px 20px;gap:18px;}
+  .header-brand{gap:15px;}
+  .header-text h1{font-size:18px;white-space:normal;}
+  .header-text p{font-size:12px;}
+  .header-kicker{font-size:9.5px;letter-spacing:1.1px;margin-bottom:7px;}
+  .logo-badge{width:56px;height:56px;}
+  .logo-fallback{font-size:16px;}
+  .brand-divider{display:none;}
+  .container{padding:24px 18px 64px;}
+  .card{padding:22px 20px;}
+  .chart-wrapper{height:380px;}
+  .kpi-value{font-size:21px;}
+}
+
+@media (max-width:560px){
+  .header-meta{width:100%;}
+  .meta-chip{flex:1 1 0;min-width:0;}
+  .filter-grid{grid-template-columns:1fr;padding:14px;}
+  .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
+  .chart-wrapper{height:340px;}
+  .upload-area{padding:32px 18px 30px;}
+  .upload-icon{width:60px;height:60px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+====================================================== -->
+<header class="app-header">
+  <div class="header-grid"></div>
+
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="logo-badge">
+        <img src="static/jktyre-tyre-logo.png" alt="JK Tyre" class="jk-logo"
+             onerror="this.style.display='none';document.getElementById('logoFallback').classList.add('show');">
+        <span class="logo-fallback" id="logoFallback">JK</span>
+      </div>
+
+      <div class="brand-divider"></div>
+
+      <div class="header-text">
+        <span class="header-kicker">JK Tyre · Quality Analytics</span>
+        <h1>SKU Monthly <span class="accent">Running Weight</span> Analysis</h1>
+        <p>Month-wise Spec vs Average Running Weight <span class="tag">Live</span></p>
+      </div>
+    </div>
+
+    <div class="header-meta">
+      <div class="meta-chip" id="todayChip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="meta-chip-text">
+          <small>Report Date</small>
+          <strong>Loading…</strong>
+        </span>
+      </div>
+
+      <div class="meta-chip live">
+        <span class="live-dot"></span>
+        <span class="meta-chip-text">
+          <small>Status</small>
+          <strong>Live</strong>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-rule"></div>
+</header>
+
+<main class="container">
+
+  <!-- =================================================
+       UPLOAD
+  ================================================== -->
+  <section class="card">
+    <h2>Upload Monthly Excel</h2>
+    <p>
+      The workbook can contain multiple month-wise sheets. Every sheet must contain
+      <strong>Size</strong>, <strong>Spec (kg)</strong> and <strong>Actual (kg)</strong>.
+    </p>
+
+    <div class="upload-meta">
+      <span class="upload-meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Excel files <code>.xlsx</code> <code>.xls</code>
+      </span>
+      <span class="upload-meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <line x1="3" y1="9" x2="21" y2="9"/>
+        </svg>
+        Multi-sheet supported
+      </span>
+      <span class="upload-meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Data shown as-is
+      </span>
+    </div>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="upload-area" id="dropZone">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+
+        <p class="upload-title">Drag &amp; drop your Excel file here</p>
+        <p class="upload-hint">or click to browse &middot; .xlsx, .xls</p>
+
+        <input type="file" id="file" name="file" accept=".xlsx,.xls" class="file-input">
+        <div class="file-name" id="fileName"></div>
+
+        <button type="submit" id="uploadBtn">Upload &amp; Analyze</button>
+      </div>
+    </form>
+
+    <div id="status"></div>
+  </section>
+
+  <!-- =================================================
+       SKU MONTHLY RUNNING WEIGHT ANALYSIS
+  ================================================== -->
+  <section class="card" id="skuAnalysisCard">
+    <h2>SKU Monthly Running Weight Analysis</h2>
+    <p class="section-note">
+      SKUs may appear in any order inside each monthly sheet. The dashboard first
+      groups the supplied records by SKU and arranges each SKU chronologically by
+      month. It does not recalculate the supplied Spec, Actual, bucket counts,
+      Total tyres or % adher. values. Missing months remain visible as
+      <strong>No data</strong> and are never treated as zero.
+    </p>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 3v18h18"/>
+        <path d="M7 15l3.5-4 3 2.5L21 6"/>
+      </svg>
+      <h3>No data loaded yet</h3>
+      <p>Upload a monthly Excel workbook above to explore SKU level running weight trends across every month.</p>
+    </div>
+
+    <!-- Analysis body -->
+    <div id="analysisBody" class="hidden">
+
+      <div class="filter-grid">
+        <div class="filter-item">
+          <label for="skuSelect">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            SKU / Size
+          </label>
+          <select id="skuSelect">
+            <option value="">Upload Excel first</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="fromMonth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            From Month
+          </label>
+          <select id="fromMonth">
+            <option value="">—</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label for="toMonth">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            To Month
+          </label>
+          <select id="toMonth">
+            <option value="">—</option>
+          </select>
+        </div>
+
+        <div class="filter-item filter-button">
+          <button type="button" id="applySkuFilter">Apply Filter</button>
+        </div>
+      </div>
+
+      <div class="sku-bar">
+        <span id="skuSelectedTitle">Select a SKU</span>
+        <span class="meta" id="skuRangeMeta"></span>
+      </div>
+
+      <div id="skuMissingInfo" class="missing-info hidden"></div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="chart-wrapper">
+        <canvas id="skuMonthlyChart"></canvas>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Spec (kg)</th>
+              <th>Avg Running Weight (kg)</th>
+              <th>−2% Limit</th>
+              <th>+2% Limit</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="skuMonthTable">
+            <tr>
+              <td colspan="6" class="empty-cell">
+                Upload an Excel file to view SKU level monthly analysis.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <strong>JK Tyre</strong> &middot; SKU Monthly Running Weight Analysis &middot;
+  Supplied data is displayed as-is without recalculation.
+</footer>
+
+<script>
+/* =========================================================
+   CHART GLOBAL DEFAULTS
+========================================================= */
 Chart.defaults.font.family =
-
-    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
-
+  "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif";
 Chart.defaults.font.size = 12;
-
 Chart.defaults.color = "#64748b";
 
-
-
-
-
-/\* =========================================================
-
-   STATE
-
-\========================================================= \*/
-
-
-
+/* =========================================================
+   STATE
+========================================================= */
 let skuMonthlyChartInstance = null;
-
 let dashboardData = null;
 
-
-
-
-
-/\* =========================================================
-
-   HELPERS
-
-\========================================================= \*/
-
-
-
+/* =========================================================
+   HELPERS
+========================================================= */
 function n(v, d = 2) {
-
-    const x = Number(v);
-
-    return Number.isFinite(x) ? x.toFixed(d) : "0";
-
+  const x = Number(v);
+  return Number.isFinite(x) ? x.toFixed(d) : "—";
 }
 
-
+function signed(v, d = 3) {
+  const x = Number(v);
+  if (!Number.isFinite(x)) return "—";
+  return (x >= 0 ? "+" : "") + x.toFixed(d);
+}
 
 function escapeHtml(value) {
-
-    return String(value == null ? "" : value)
-
-        .replace(/&/g, "&amp;")
-
-        .replace(/\</g, "&lt;")
-
-        .replace(/>/g, "&gt;")
-
-        .replace(/"/g, "&quot;")
-
-        .replace(/'/g, "&#39;");
-
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
-
-
 
 function formatMonthLabel(value) {
-
-
-
-    const m = String(value || "").match(/^(\d{4})-(\d{2})$/);
-
-    if (!m) return value;
-
-
-
-    const names = [
-
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-
-    ];
-
-
-
-    return \`${names[Number(m[2]) - 1]}-${m[1].slice(2)}\`;
-
+  const m = String(value || "").match(/^(\d{4})-(\d{2})$/);
+  if (!m) return value;
+  const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return names[Number(m[2]) - 1] + "-" + m[1].slice(2);
 }
 
+function mean(arr) {
+  const vals = arr.filter(v => Number.isFinite(v));
+  if (!vals.length) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
 
-
-
-
-/\* =========================================================
-
-   FILTERS
-
-\========================================================= \*/
-
-
-
+/* =========================================================
+   FILTERS
+========================================================= */
 function populateFilters(data) {
+  const skuSelect = document.getElementById("skuSelect");
+  const from = document.getElementById("fromMonth");
+  const to = document.getElementById("toMonth");
+  if (!skuSelect || !from || !to) return;
 
+  const skus = data.sku_values || data.skus || [];
+  const months =
+    data.continuous_months ||
+    data.month_values ||
+    (data.meta && data.meta.months) ||
+    [];
 
+  skuSelect.innerHTML = skus.length
+    ? skus.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")
+    : `<option value="">No SKU found</option>`;
 
-    const skuSelect = document.getElementById("skuSelect");
+  const opts = months
+    .map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`)
+    .join("");
 
-    const from = document.getElementById("fromMonth");
+  from.innerHTML = opts;
+  to.innerHTML = opts;
 
-    const to = document.getElementById("toMonth");
-
-
-
-    if (!skuSelect || !from || !to) return;
-
-
-
-    const skus = data.sku_values || data.skus || [];
-
-
-
-    const months =
-
-        data.continuous_months ||
-
-        data.month_values ||
-
-        (data.meta && data.meta.months) ||
-
-        [];
-
-
-
-    skuSelect.innerHTML = skus.length
-
-        ? skus.map(x => \`\<option value="${escapeHtml(x)}">${escapeHtml(x)}\</option>\`).join("")
-
-        : \`\<option value="">No SKU found\</option>\`;
-
-
-
-    const opts = months
-
-        .map(x => \`\<option value="${escapeHtml(x)}">${escapeHtml(x)}\</option>\`)
-
-        .join("");
-
-
-
-    from.innerHTML = opts;
-
-    to.innerHTML = opts;
-
-
-
-    if (months.length) {
-
-        from.value = months[0];
-
-        to.value = months[months.length - 1];
-
-    }
-
-
-
-    if (skus.length) skuSelect.value = skus[0];
-
+  if (months.length) {
+    from.value = months[0];
+    to.value = months[months.length - 1];
+  }
+  if (skus.length) skuSelect.value = skus[0];
 }
 
+/* =========================================================
+   KPI COMPUTATION
+========================================================= */
+function kpiIcon(tone) {
+  if (tone === "is-ok") {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  }
+  if (tone === "is-bad") {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+  }
+  if (tone === "is-info") {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>';
+}
 
+function computeKpis(selected, points) {
+  const withData = points.filter(Boolean);
 
+  const specVals = withData
+    .map(r => r.spec == null ? null : Number(r.spec))
+    .filter(Number.isFinite);
+  const avgVals = withData
+    .map(r => r.average_running_weight == null ? null : Number(r.average_running_weight))
+    .filter(Number.isFinite);
 
+  const avgSpec = mean(specVals);
+  const avgRun = mean(avgVals);
 
-/\* =========================================================
+  let devKg = null, devPct = null;
+  if (avgSpec != null && avgRun != null && avgSpec !== 0) {
+    devKg = avgRun - avgSpec;
+    devPct = (devKg / avgSpec) * 100;
+  }
 
-   SKU MONTHLY ANALYSIS
+  let within = 0, evaluated = 0;
+  withData.forEach(r => {
+    const spec = r.spec == null ? null : Number(r.spec);
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    if (!Number.isFinite(run)) return;
+    evaluated++;
+    if (Number.isFinite(lo) && Number.isFinite(hi)) {
+      if (run >= Math.min(lo, hi) && run <= Math.max(lo, hi)) within++;
+    } else if (Number.isFinite(spec) && spec !== 0) {
+      const pct = ((run - spec) / spec) * 100;
+      if (pct >= -2 && pct <= 2) within++;
+    }
+  });
 
-\========================================================= \*/
+  const compliance = evaluated ? (within / evaluated) * 100 : null;
 
+  const devTone =
+    devPct == null ? "is-neutral" :
+    Math.abs(devPct) <= 2 ? "is-ok" : "is-bad";
 
+  const compTone =
+    compliance == null ? "is-neutral" :
+    compliance >= 80 ? "is-ok" : "is-bad";
 
+  return [
+    {
+      label: "Average Spec",
+      value: avgSpec == null ? "—" : n(avgSpec, 3),
+      unit: "kg",
+      sub: specVals.length + " month" + (specVals.length === 1 ? "" : "s") + " with spec",
+      tone: "is-neutral"
+    },
+    {
+      label: "Avg Running Weight",
+      value: avgRun == null ? "—" : n(avgRun, 3),
+      unit: "kg",
+      sub: avgVals.length + " month" + (avgVals.length === 1 ? "" : "s") + " with actuals",
+      tone: "is-info"
+    },
+    {
+      label: "Deviation",
+      value: devPct == null ? "—" : (devPct >= 0 ? "+" : "") + devPct.toFixed(2),
+      unit: "%",
+      sub: devKg == null ? "—" : signed(devKg, 3) + " kg vs spec",
+      tone: devTone
+    },
+    {
+      label: "Months Covered",
+      value: String(withData.length),
+      unit: "/ " + selected.length,
+      sub: selected.length - withData.length > 0
+        ? (selected.length - withData.length) + " month(s) missing"
+        : "Complete coverage",
+      tone: "is-neutral"
+    },
+    {
+      label: "Within ±2%",
+      value: compliance == null ? "—" : compliance.toFixed(1),
+      unit: "%",
+      sub: within + " of " + evaluated + " month(s)",
+      tone: compTone
+    }
+  ];
+}
+
+function renderKpis(selected, points) {
+  const grid = document.getElementById("kpiGrid");
+  if (!grid) return;
+  const cards = computeKpis(selected, points);
+
+  grid.innerHTML = cards.map(c =>
+    '<div class="kpi ' + c.tone + '">' +
+      '<div class="kpi-top">' +
+        '<div class="kpi-label">' + escapeHtml(c.label) + '</div>' +
+        '<div class="kpi-icon">' + kpiIcon(c.tone) + '</div>' +
+      '</div>' +
+      '<div class="kpi-value">' + escapeHtml(c.value) +
+        '<span class="unit">' + escapeHtml(c.unit) + '</span>' +
+      '</div>' +
+      '<div class="kpi-sub">' + escapeHtml(c.sub) + '</div>' +
+    '</div>'
+  ).join("");
+}
+
+/* =========================================================
+   SKU MONTHLY ANALYSIS
+========================================================= */
 function renderSkuAnalysis() {
-
-
-
-    if (!dashboardData) return;
-
-
-
-    const skuEl = document.getElementById("skuSelect");
-
-    const fromEl = document.getElementById("fromMonth");
-
-    const toEl = document.getElementById("toMonth");
-
-
-
-    if (!skuEl || !fromEl || !toEl) return;
-
-
-
-    const sku = skuEl.value;
-
-    const from = fromEl.value;
-
-    const to = toEl.value;
-
-
-
-    const allMonths =
-
-        dashboardData.continuous_months ||
-
-        dashboardData.month_values ||
-
-        [];
-
-
-
-    const monthly = dashboardData.sku_month_summary || [];
-
-
-
-    const rows = monthly.filter(r => String(r.sku || "") === String(sku));
-
-
-
-    let start = allMonths.indexOf(from);
-
-    let end = allMonths.indexOf(to);
-
-
-
-    if (start < 0) start = 0;
-
-    if (end < 0) end = allMonths.length - 1;
-
-
-
-    if (start > end) {
-
-        const t = start; start = end; end = t;
-
-    }
-
-
-
-    const selected = allMonths.slice(start, end + 1);
-
-
-
-    const byMonth = new Map(rows.map(r => [String(r.month), r]));
-
-
-
-    const points = selected.map(m => byMonth.get(String(m)) || null);
-
-
-
-    const missing = points
-
-        .map((r, i) => (r ? null : i))
-
-        .filter(i => i !== null);
-
-
-
-    const title = document.getElementById("skuSelectedTitle");
-
-    if (title) title.textContent = sku ? \`Size / SKU: ${sku}\` : "Select a SKU";
-
-
-
-    const info = document.getElementById("skuMissingInfo");
-
-
-
-    if (info) {
-
-
-
-        info.style.display = missing.length ? "block" : "none";
-
-
-
-        info.textContent = missing.length
-
-            ? \`Missing month data: ${missing.map(i => formatMonthLabel(selected[i])).join(", ")}. \` +
-
-              \`These months remain on the graph and are not treated as 0.\`
-
-            : "All selected months contain data.";
-
-    }
-
-
-
-    const ctx = document.getElementById("skuMonthlyChart");
-
-
-
-    if (ctx) {
-
-
-
-        if (skuMonthlyChartInstance) skuMonthlyChartInstance.destroy();
-
-
-
-        const missingPlugin = {
-
-            id: "missingMonthIndicator",
-
-            afterDraw(chart) {
-
-
-
-                if (!missing.length || !chart.scales.x) return;
-
-
-
-                const c = chart.ctx;
-
-
-
-                c.save();
-
-                c.font = "700 11px Inter, Arial";
-
-                c.textAlign = "center";
-
-                c.fillStyle = "#94a3b8";
-
-
-
-                missing.forEach(i => {
-
-
-
-                    const x = chart.scales.x.getPixelForValue(i);
-
-
-
-                    c.setLineDash([5, 5]);
-
-                    c.strokeStyle = "#cbd5e1";
-
-                    c.beginPath();
-
-                    c.moveTo(x, chart.chartArea.top);
-
-                    c.lineTo(x, chart.chartArea.bottom);
-
-                    c.stroke();
-
-                    c.setLineDash([]);
-
-
-
-                    c.fillText("No data", x, chart.chartArea.top + 16);
-
-                });
-
-
-
-                c.restore();
-
-            }
-
-        };
-
-
-
-        skuMonthlyChartInstance = new Chart(ctx, {
-
-            type: "line",
-
-            plugins: [missingPlugin],
-
-            data: {
-
-                labels: selected.map(formatMonthLabel),
-
-                datasets: [
-
-                    {
-
-                        label: "Average Running Weight",
-
-                        data: points.map(r => r ? Number(r.average_running_weight) : null),
-
-                        borderColor: "#e30613",
-
-                        backgroundColor: "#e30613",
-
-                        borderWidth: 3,
-
-                        spanGaps: true,
-
-                        tension: 0.25,
-
-                        pointRadius: 5,
-
-                        pointHoverRadius: 9,
-
-                        pointBackgroundColor: "#e30613",
-
-                        pointBorderColor: "#ffffff",
-
-                        pointBorderWidth: 2.5,
-
-                        pointHoverBorderWidth: 3,
-
-                        fill: false
-
-                    },
-
-                    {
-
-                        label: "Spec",
-
-                        data: points.map(r => r ? Number(r.spec) : null),
-
-                        borderColor: "#0f172a",
-
-                        backgroundColor: "#0f172a",
-
-                        borderWidth: 2,
-
-                        borderDash: [6, 4],
-
-                        spanGaps: true,
-
-                        tension: 0.2,
-
-                        pointRadius: 3,
-
-                        pointHoverRadius: 6,
-
-                        pointBackgroundColor: "#0f172a",
-
-                        pointBorderColor: "#ffffff",
-
-                        pointBorderWidth: 2,
-
-                        fill: false
-
-                    },
-
-                    {
-
-                        label: "-2% Limit",
-
-                        data: points.map(r =>
-
-                            r && r.minus_2_percent != null
-
-                                ? Number(r.minus_2_percent)
-
-                                : null
-
-                        ),
-
-                        borderColor: "#f59e0b",
-
-                        backgroundColor: "#f59e0b",
-
-                        borderWidth: 1.8,
-
-                        borderDash: [3, 3],
-
-                        spanGaps: true,
-
-                        tension: 0.2,
-
-                        pointRadius: 2,
-
-                        pointHoverRadius: 5,
-
-                        pointBackgroundColor: "#f59e0b",
-
-                        fill: false
-
-                    },
-
-                    {
-
-                        label: "+2% Limit",
-
-                        data: points.map(r =>
-
-                            r && r.plus_2_percent != null
-
-                                ? Number(r.plus_2_percent)
-
-                                : null
-
-                        ),
-
-                        borderColor: "#2563eb",
-
-                        backgroundColor: "#2563eb",
-
-                        borderWidth: 1.8,
-
-                        borderDash: [3, 3],
-
-                        spanGaps: true,
-
-                        tension: 0.2,
-
-                        pointRadius: 2,
-
-                        pointHoverRadius: 5,
-
-                        pointBackgroundColor: "#2563eb",
-
-                        fill: false
-
-                    }
-
-                ]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                interaction: { mode: "index", intersect: false },
-
-                animation: {
-
-                    duration: 900,
-
-                    easing: "easeOutQuart"
-
-                },
-
-                scales: {
-
-                    x: {
-
-                        grid: { display: false },
-
-                        ticks: {
-
-                            color: "#64748b",
-
-                            font: { weight: "600", size: 11.5 }
-
-                        }
-
-                    },
-
-                    y: {
-
-                        grid: { color: "#eef2f7" },
-
-                        ticks: {
-
-                            color: "#64748b",
-
-                            font: { weight: "600", size: 11.5 }
-
-                        },
-
-                        title: {
-
-                            display: true,
-
-                            text: "Weight (KG)",
-
-                            color: "#475569",
-
-                            font: { weight: "700", size: 12 }
-
-                        }
-
-                    }
-
-                },
-
-                plugins: {
-
-                    legend: {
-
-                        display: true,
-
-                        position: "top",
-
-                        align: "end",
-
-                        labels: {
-
-                            usePointStyle: true,
-
-                            pointStyle: "line",
-
-                            boxWidth: 26,
-
-                            padding: 18,
-
-                            color: "#334155",
-
-                            font: { weight: "700", size: 12 }
-
-                        }
-
-                    },
-
-                    tooltip: {
-
-                        backgroundColor: "#0b1220",
-
-                        padding: 14,
-
-                        cornerRadius: 10,
-
-                        titleFont: { weight: "800", size: 13 },
-
-                        bodyFont: { weight: "600", size: 12.5 },
-
-                        bodySpacing: 6,
-
-                        boxPadding: 6,
-
-                        borderColor: "rgba(255,255,255,.08)",
-
-                        borderWidth: 1
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    }
-
-
-
-    /\* ---------- SKU month table ---------- \*/
-
-
-
-    const tbody = document.getElementById("skuMonthTable");
-
-
-
-    if (tbody) {
-
-
-
-        tbody.innerHTML = "";
-
-
-
-        if (!selected.length) {
-
-            tbody.innerHTML =
-
-                \`\<tr>\<td colspan="5" class="empty-cell">No months selected.\</td>\</tr>\`;
-
-        } else {
-
-            selected.forEach((m, i) => {
-
-
-
-                const r = points[i];
-
-
-
-                if (!r) {
-
-                    tbody.insertAdjacentHTML("beforeend",
-
-                        \`\<tr class="missing-row">
-
-                            \<td>\<strong>${escapeHtml(formatMonthLabel(m))}\</strong>\</td>
-
-                            \<td colspan="4">No data\</td>
-
-                        \</tr>\`);
-
-                    return;
-
-                }
-
-
-
-                tbody.insertAdjacentHTML("beforeend",
-
-                    \`\<tr>
-
-                        \<td>${escapeHtml(formatMonthLabel(m))}\</td>
-
-                        \<td>${r.spec == null ? "—" : n(r.spec, 3)}\</td>
-
-                        \<td>${r.average_running_weight == null ? "—" : n(r.average_running_weight, 3)}\</td>
-
-                        \<td>${r.minus_2_percent == null ? "—" : n(r.minus_2_percent, 3)}\</td>
-
-                        \<td>${r.plus_2_percent == null ? "—" : n(r.plus_2_percent, 3)}\</td>
-
-                    \</tr>\`);
-
-            });
-
-        }
-
-    }
-
+  if (!dashboardData) return;
+
+  const skuEl = document.getElementById("skuSelect");
+  const fromEl = document.getElementById("fromMonth");
+  const toEl = document.getElementById("toMonth");
+  if (!skuEl || !fromEl || !toEl) return;
+
+  const sku = skuEl.value;
+  const from = fromEl.value;
+  const to = toEl.value;
+
+  const allMonths =
+    dashboardData.continuous_months ||
+    dashboardData.month_values ||
+    (dashboardData.meta && dashboardData.meta.months) ||
+    [];
+
+  const monthly = dashboardData.sku_month_summary || [];
+  const rows = monthly.filter(r => String(r.sku || "") === String(sku));
+
+  let start = allMonths.indexOf(from);
+  let end = allMonths.indexOf(to);
+  if (start < 0) start = 0;
+  if (end < 0) end = allMonths.length - 1;
+  if (start > end) { const t = start; start = end; end = t; }
+
+  const selected = allMonths.slice(start, end + 1);
+  const byMonth = new Map(rows.map(r => [String(r.month), r]));
+  const points = selected.map(m => byMonth.get(String(m)) || null);
+
+  const missing = points
+    .map((r, i) => (r ? null : i))
+    .filter(i => i !== null);
+
+  /* Selected SKU title */
+  const title = document.getElementById("skuSelectedTitle");
+  if (title) title.textContent = sku ? "Size / SKU: " + sku : "Select a SKU";
+
+  /* Range meta */
+  const rangeMeta = document.getElementById("skuRangeMeta");
+  if (rangeMeta) {
+    const withData = points.filter(Boolean);
+    if (withData.length) {
+      const first = formatMonthLabel(withData[0].month);
+      const last = formatMonthLabel(withData[withData.length - 1].month);
+      rangeMeta.textContent = first + " → " + last + " · " +
+        withData.length + " of " + selected.length + " months";
+    } else {
+      rangeMeta.textContent = "";
+    }
+  }
+
+  /* Missing info */
+  const info = document.getElementById("skuMissingInfo");
+  if (info) {
+    if (missing.length) {
+      info.classList.remove("hidden");
+      info.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+        '<div><strong>Missing months:</strong> ' +
+        missing.map(i => formatMonthLabel(selected[i])).map(escapeHtml).join(", ") +
+        ' — shown as “No data” and excluded from all averages.</div>';
+    } else {
+      info.classList.add("hidden");
+      info.innerHTML = "";
+    }
+  }
+
+  /* KPI strip */
+  renderKpis(selected, points);
+
+  /* ---------- Chart ---------- */
+  const ctx = document.getElementById("skuMonthlyChart");
+  if (ctx) {
+    if (skuMonthlyChartInstance) skuMonthlyChartInstance.destroy();
+
+    const missingPlugin = {
+      id: "missingMonthIndicator",
+      afterDraw(chart) {
+        if (!missing.length || !chart.scales.x) return;
+        const c = chart.ctx;
+        c.save();
+        c.font = "700 11px Inter, Arial";
+        c.textAlign = "center";
+        c.fillStyle = "#94a3b8";
+
+        missing.forEach(i => {
+          const x = chart.scales.x.getPixelForValue(i);
+          c.setLineDash([5, 5]);
+          c.strokeStyle = "#cbd5e1";
+          c.beginPath();
+          c.moveTo(x, chart.chartArea.top);
+          c.lineTo(x, chart.chartArea.bottom);
+          c.stroke();
+          c.setLineDash([]);
+
+          c.fillText("No data", x, chart.chartArea.top + 16);
+        });
+
+        c.restore();
+      }
+    };
+
+    skuMonthlyChartInstance = new Chart(ctx, {
+      type: "line",
+      plugins: [missingPlugin],
+      data: {
+        labels: selected.map(formatMonthLabel),
+        datasets: [
+          {
+            label: "Average Running Weight",
+            data: points.map(r => r ? Number(r.average_running_weight) : null),
+            borderColor: "#e30613",
+            backgroundColor: "rgba(227,6,19,.06)",
+            borderWidth: 3,
+            spanGaps: true,
+            tension: 0.28,
+            pointRadius: 5,
+            pointHoverRadius: 9,
+            pointBackgroundColor: "#e30613",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2.5,
+            pointHoverBorderWidth: 3,
+            fill: false
+          },
+          {
+            label: "Spec",
+            data: points.map(r => r ? Number(r.spec) : null),
+            borderColor: "#0f172a",
+            backgroundColor: "#0f172a",
+            borderWidth: 2,
+            borderDash: [6, 4],
+            spanGaps: true,
+            tension: 0.2,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: "#0f172a",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            fill: false
+          },
+          {
+            label: "−2% Limit",
+            data: points.map(r =>
+              r && r.minus_2_percent != null ? Number(r.minus_2_percent) : null
+            ),
+            borderColor: "#f59e0b",
+            backgroundColor: "#f59e0b",
+            borderWidth: 1.8,
+            borderDash: [3, 3],
+            spanGaps: true,
+            tension: 0.2,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#f59e0b",
+            fill: false
+          },
+          {
+            label: "+2% Limit",
+            data: points.map(r =>
+              r && r.plus_2_percent != null ? Number(r.plus_2_percent) : null
+            ),
+            borderColor: "#2563eb",
+            backgroundColor: "#2563eb",
+            borderWidth: 1.8,
+            borderDash: [3, 3],
+            spanGaps: true,
+            tension: 0.2,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            pointBackgroundColor: "#2563eb",
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        animation: {
+          duration: 900,
+          easing: "easeOutQuart"
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: "#64748b",
+              font: { weight: "600", size: 11.5 }
+            }
+          },
+          y: {
+            grid: { color: "#eef2f7" },
+            ticks: {
+              color: "#64748b",
+              font: { weight: "600", size: 11.5 }
+            },
+            title: {
+              display: true,
+              text: "Weight (kg)",
+              color: "#475569",
+              font: { weight: "700", size: 12 }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            align: "end",
+            labels: {
+              usePointStyle: true,
+              pointStyle: "line",
+              boxWidth: 26,
+              padding: 18,
+              color: "#334155",
+              font: { weight: "700", size: 12 }
+            }
+          },
+          tooltip: {
+            backgroundColor: "#0b1220",
+            padding: 14,
+            cornerRadius: 10,
+            titleFont: { weight: "800", size: 13 },
+            bodyFont: { weight: "600", size: 12.5 },
+            bodySpacing: 6,
+            boxPadding: 6,
+            borderColor: "rgba(255,255,255,.08)",
+            borderWidth: 1
+          }
+        }
+      }
+    });
+  }
+
+  /* ---------- Table ---------- */
+  const tbody = document.getElementById("skuMonthTable");
+  if (tbody) {
+    tbody.innerHTML = "";
+
+    if (!selected.length) {
+      tbody.innerHTML =
+        '<tr><td colspan="6" class="empty-cell">No months selected.</td></tr>';
+      return;
+    }
+
+    selected.forEach((m, i) => {
+      const r = points[i];
+
+      if (!r) {
+        tbody.insertAdjacentHTML("beforeend",
+          '<tr class="missing-row">' +
+            '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+            '<td colspan="5">No data</td>' +
+          '</tr>');
+        return;
+      }
+
+      const spec = r.spec == null ? null : Number(r.spec);
+      const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+      const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+      const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+
+      let ok = null;
+      if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
+        ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+      } else if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+        const pct = ((run - spec) / spec) * 100;
+        ok = pct >= -2 && pct <= 2;
+      }
+
+      const badge = ok === null
+        ? '<span style="color:var(--faint);font-weight:700;">—</span>'
+        : ok
+          ? '<span class="badge ok">Within limit</span>'
+          : '<span class="badge bad">Out of limit</span>';
+
+      tbody.insertAdjacentHTML("beforeend",
+        '<tr class="' + (ok === false ? "row-out" : "") + '">' +
+          '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+          '<td>' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
+          '<td>' + (run == null ? "—" : n(run, 3)) + '</td>' +
+          '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
+          '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+          '<td>' + badge + '</td>' +
+        '</tr>');
+    });
+  }
 }
 
-
-
-
-
-/\* =========================================================
-
-   INIT
-
-\========================================================= \*/
-
-
-
+/* =========================================================
+   INIT
+========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-
-
-    /\* ---------- Header date chip ---------- \*/
-
-
-
-    const chip = document.getElementById("todayChip");
-
-
-
-    if (chip) {
-
-        chip.innerHTML =
-
-            \`\<span class="dot">\</span>\` +
-
-            new Date().toLocaleDateString("en-IN", {
-
-                day: "2-digit",
-
-                month: "short",
-
-                year: "numeric"
-
-            });
-
-    }
-
-
-
-
-
-    /\* ---------- Elements ---------- \*/
-
-
-
-    const form = document.getElementById("uploadForm");
-
-    const fileInput = document.getElementById("file");
-
-    const status = document.getElementById("status");
-
-    const dropZone = document.getElementById("dropZone");
-
-    const fileName = document.getElementById("fileName");
-
-    const uploadBtn = document.getElementById("uploadBtn");
-
-
-
-
-
-    /\* ---------- File name display ---------- \*/
-
-
-
-    function showFileName() {
-
-
-
-        if (!fileName || !fileInput) return;
-
-
-
-        if (fileInput.files && fileInput.files.length) {
-
-
-
-            const f = fileInput.files[0];
-
-            const kb = (f.size / 1024).toFixed(1);
-
-
-
-            fileName.textContent = \`${f.name}  ·  ${kb} KB\`;
-
-            fileName.classList.add("show");
-
-
-
-        } else {
-
-            fileName.classList.remove("show");
-
-        }
-
-    }
-
-
-
-
-
-    fileInput?.addEventListener("change", showFileName);
-
-
-
-
-
-    /\* ---------- Drag & drop ---------- \*/
-
-
-
-    if (dropZone && fileInput) {
-
-
-
-        ["dragenter", "dragover"].forEach(ev => {
-
-            dropZone.addEventListener(ev, e => {
-
-                e.preventDefault();
-
-                e.stopPropagation();
-
-                dropZone.classList.add("dragover");
-
-            });
-
-        });
-
-
-
-        ["dragleave", "drop"].forEach(ev => {
-
-            dropZone.addEventListener(ev, e => {
-
-                e.preventDefault();
-
-                e.stopPropagation();
-
-                dropZone.classList.remove("dragover");
-
-            });
-
-        });
-
-
-
-        dropZone.addEventListener("drop", e => {
-
-
-
-            const files = e.dataTransfer && e.dataTransfer.files;
-
-
-
-            if (files && files.length) {
-
-                fileInput.files = files;
-
-                showFileName();
-
-            }
-
-        });
-
-
-
-        dropZone.addEventListener("click", e => {
-
-
-
-            if (e.target.closest("#uploadBtn")) return;
-
-
-
-            fileInput.click();
-
-        });
-
-    }
-
-
-
-
-
-    /\* ---------- SKU filters ---------- \*/
-
-
-
-    document.getElementById("applySkuFilter")
-
-        ?.addEventListener("click", () => renderSkuAnalysis());
-
-
-
-    document.getElementById("skuSelect")
-
-        ?.addEventListener("change", () => renderSkuAnalysis());
-
-
-
-    document.getElementById("fromMonth")
-
-        ?.addEventListener("change", () => renderSkuAnalysis());
-
-
-
-    document.getElementById("toMonth")
-
-        ?.addEventListener("change", () => renderSkuAnalysis());
-
-
-
-
-
-    /\* ---------- Upload ---------- \*/
-
-
-
-    if (!form) return;
-
-
-
-    form.addEventListener("submit", async e => {
-
-
-
-        e.preventDefault();
-
-
-
-        if (!fileInput.files.length) {
-
-            status.textContent = "Please select an Excel file.";
-
-            status.className = "error";
-
-            return;
-
-        }
-
-
-
-        status.className = "loading";
-
-        status.innerHTML =
-
-            \`\<span class="spinner">\</span> Processing Excel…\`;
-
-
-
-        if (uploadBtn) {
-
-            uploadBtn.disabled = true;
-
-            uploadBtn.textContent = "Processing…";
-
-        }
-
-
-
-        try {
-
-
-
-            const fd = new FormData();
-
-            fd.append("file", fileInput.files[0]);
-
-
-
-            const res = await fetch("/upload", {
-
-                method: "POST",
-
-                body: fd
-
-            });
-
-
-
-            const data = await res.json();
-
-
-
-            if (!res.ok || !data.success) {
-
-                throw new Error(
-
-                    data.message || data.error || "Failed to process Excel."
-
-                );
-
-            }
-
-
-
-            dashboardData = data;
-
-
-
-            populateFilters(data);
-
-            renderSkuAnalysis();
-
-
-
-            status.textContent =
-
-                data.message || "Excel processed successfully.";
-
-
-
-            status.className = "success";
-
-
-
-        } catch (err) {
-
-
-
-            console.error(err);
-
-
-
-            status.textContent = err.message;
-
-            status.className = "error";
-
-
-
-        } finally {
-
-
-
-            if (uploadBtn) {
-
-                uploadBtn.disabled = false;
-
-                uploadBtn.textContent = "Upload & Analyze";
-
-            }
-
-        }
-
-    });
-
-
+  /* ---------- Header date chip ---------- */
+  const chip = document.getElementById("todayChip");
+  if (chip) {
+    const valueEl = chip.querySelector("strong");
+    if (valueEl) {
+      valueEl.textContent = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+  }
+
+  /* ---------- Elements ---------- */
+  const form = document.getElementById("uploadForm");
+  const fileInput = document.getElementById("file");
+  const status = document.getElementById("status");
+  const dropZone = document.getElementById("dropZone");
+  const fileName = document.getElementById("fileName");
+  const uploadBtn = document.getElementById("uploadBtn");
+  const emptyState = document.getElementById("emptyState");
+  const analysisBody = document.getElementById("analysisBody");
+
+  /* ---------- File name display ---------- */
+  function showFileName() {
+    if (!fileName || !fileInput) return;
+    if (fileInput.files && fileInput.files.length) {
+      const f = fileInput.files[0];
+      const kb = (f.size / 1024).toFixed(1);
+      fileName.textContent = f.name + "  ·  " + kb + " KB";
+      fileName.classList.add("show");
+    } else {
+      fileName.classList.remove("show");
+    }
+  }
+
+  fileInput?.addEventListener("change", showFileName);
+
+  /* ---------- Drag & drop ---------- */
+  if (dropZone && fileInput) {
+    ["dragenter", "dragover"].forEach(ev => {
+      dropZone.addEventListener(ev, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(ev => {
+      dropZone.addEventListener(ev, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("dragover");
+      });
+    });
+
+    dropZone.addEventListener("drop", e => {
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (files && files.length) {
+        fileInput.files = files;
+        showFileName();
+      }
+    });
+
+    dropZone.addEventListener("click", e => {
+      if (e.target.closest("#uploadBtn")) return;
+      fileInput.click();
+    });
+  }
+
+  /* ---------- SKU filters ---------- */
+  document.getElementById("applySkuFilter")
+    ?.addEventListener("click", () => renderSkuAnalysis());
+
+  document.getElementById("skuSelect")
+    ?.addEventListener("change", () => renderSkuAnalysis());
+
+  document.getElementById("fromMonth")
+    ?.addEventListener("change", () => renderSkuAnalysis());
+
+  document.getElementById("toMonth")
+    ?.addEventListener("change", () => renderSkuAnalysis());
+
+  /* ---------- Upload ---------- */
+  if (!form) return;
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    if (!fileInput.files.length) {
+      status.textContent = "Please select an Excel file.";
+      status.className = "error";
+      return;
+    }
+
+    status.className = "loading";
+    status.innerHTML = '<span class="spinner"></span> Processing Excel…';
+
+    if (uploadBtn) {
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Processing…";
+    }
+
+    try {
+      const fd = new FormData();
+      fd.append("file", fileInput.files[0]);
+
+      const res = await fetch("/upload", {
+        method: "POST",
+        body: fd
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(
+          data.message || data.error || "Failed to process Excel."
+        );
+      }
+
+      dashboardData = data;
+
+      populateFilters(data);
+
+      if (emptyState) emptyState.classList.add("hidden");
+      if (analysisBody) analysisBody.classList.remove("hidden");
+
+      requestAnimationFrame(() => renderSkuAnalysis());
+
+      status.textContent = data.message || "Excel processed successfully.";
+      status.className = "success";
+
+    } catch (err) {
+      console.error(err);
+      status.textContent = err.message;
+      status.className = "error";
+    } finally {
+      if (uploadBtn) {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Upload & Analyze";
+      }
+    }
+  });
 
 });
+</script>
 
-
-
-\</script>
-
-
-
-
-
-\</body>
-
-
-
-\</html>
+</body>
+</html>
