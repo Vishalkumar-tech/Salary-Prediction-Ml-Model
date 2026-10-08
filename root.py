@@ -219,7 +219,7 @@ def normalize_sku_value(value):
 
 
 def parse_month_value(value):
-    """Normalize month labels while supporting both YYYY-MM and workbook labels such as 1-01."""
+    """Normalize Excel worksheet month labels such as Jan'25, Feb'25 and Jan."""
     if pd.isna(value):
         return None
 
@@ -227,42 +227,57 @@ def parse_month_value(value):
     if not text or text.lower() in {"nan", "none", "nat"}:
         return None
 
-    # Workbook month sheets are named Jan, Feb, Mar ... Dec.
-    # Treat these as calendar months in the current dashboard year (2026)
-    # instead of allowing pandas to interpret the text using an implicit year.
+    normalized = (text.lower().strip()
+                  .replace("’", "'").replace("`", "'")
+                  .replace("–", "-").replace("—", "-").replace("−", "-"))
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
     month_names = {
-        "jan": 1, "january": 1,
-        "feb": 2, "february": 2,
-        "mar": 3, "march": 3,
-        "apr": 4, "april": 4,
-        "may": 5,
-        "jun": 6, "june": 6,
-        "jul": 7, "july": 7,
-        "aug": 8, "august": 8,
-        "sep": 9, "sept": 9, "september": 9,
-        "oct": 10, "october": 10,
-        "nov": 11, "november": 11,
+        "jan": 1, "january": 1, "feb": 2, "february": 2,
+        "mar": 3, "march": 3, "apr": 4, "april": 4, "may": 5,
+        "jun": 6, "june": 6, "jul": 7, "july": 7, "aug": 8,
+        "august": 8, "sep": 9, "sept": 9, "september": 9,
+        "oct": 10, "october": 10, "nov": 11, "november": 11,
         "dec": 12, "december": 12,
     }
-    month_key = re.sub(r"\\s+", "", text.lower()).rstrip(".")
+
+    # Supports Jan'25, Jan-25, Jan 25, January'25, etc.
+    match = re.fullmatch(
+        r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|"
+        r"jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|"
+        r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)[\s'\-]*(\d{2})",
+        normalized,
+    )
+    if match:
+        month_number = month_names[match.group(1)]
+        yy = int(match.group(2))
+        year_number = 2000 + yy if yy <= 69 else 1900 + yy
+        return f"{year_number:04d}-{month_number:02d}"
+
+    # Supports Jan, Feb, Mar ... without a year.
+    month_key = re.sub(r"\s+", "", normalized).rstrip(".")
     if month_key in month_names:
         return f"2026-{month_names[month_key]:02d}"
 
-    # Also support explicit labels such as 2026-01 and the older workbook
-    # labels such as 1-01.
-    legacy = re.fullmatch(r"(\d+)-(\d{1,2})", text)
-    if legacy:
-        year_part = int(legacy.group(1))
-        month_part = int(legacy.group(2))
-        if 1 <= month_part <= 12:
-            return f"{year_part}-{month_part:02d}"
+    # Supports YYYY-MM and YYYY/MM.
+    match = re.fullmatch(r"(\d{4})[-/](\d{1,2})", normalized)
+    if match:
+        year_number, month_number = int(match.group(1)), int(match.group(2))
+        if 1 <= month_number <= 12:
+            return f"{year_number:04d}-{month_number:02d}"
+
+    # Legacy workbook labels such as 1-01.
+    match = re.fullmatch(r"(\d+)-(\d{1,2})", normalized)
+    if match:
+        year_number, month_number = int(match.group(1)), int(match.group(2))
+        if 1 <= month_number <= 12:
+            return f"{year_number}-{month_number:02d}"
 
     dt = pd.to_datetime(text, errors="coerce")
     if pd.notna(dt):
         return dt.strftime("%Y-%m")
 
     return text
-
 
 def month_parts(value):
     """Return (year, month) for supported month labels, otherwise (None, None)."""
