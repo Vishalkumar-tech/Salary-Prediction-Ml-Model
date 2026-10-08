@@ -9,41 +9,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 /* =====================================================
    DESIGN TOKENS
 ===================================================== */
 :root{
-  /* Brand */
   --jk-red:        #e30613;
   --jk-red-light:  #ff4438;
   --jk-red-deep:   #b30510;
   --jk-red-glow:   rgba(227, 6, 19, .35);
   --jk-red-tint:   rgba(227, 6, 19, .08);
 
-  /* Neutrals */
   --ink:           #0b1220;
   --ink-2:         #1e293b;
   --slate:         #475569;
   --muted:         #64748b;
   --faint:         #94a3b8;
 
-  /* Surfaces */
   --surface:       #ffffff;
   --surface-2:     #fbfdff;
   --surface-3:     #f5f8fc;
 
-  /* Lines */
   --line:          #e5eaf2;
   --line-2:        #eef2f7;
   --line-strong:   #cbd5e1;
 
-  /* Background */
   --bg:            #eef2f7;
 
-  /* Semantic */
   --ok:            #059669;
   --ok-bg:         #ecfdf5;
   --ok-line:       #a7f3d0;
@@ -60,40 +52,25 @@
   --info-bg:       #eff6ff;
   --info-line:     #bfdbfe;
 
-  /* Radii */
   --radius-xs:     8px;
   --radius-sm:     12px;
   --radius:        16px;
   --radius-lg:     22px;
 
-  /* Shadows */
   --shadow-xs:     0 1px 2px rgba(15,23,42,.04);
   --shadow-sm:     0 2px 6px rgba(15,23,42,.05);
   --shadow:        0 1px 2px rgba(15,23,42,.04), 0 12px 32px -16px rgba(15,23,42,.18);
   --shadow-lg:     0 2px 4px rgba(15,23,42,.05), 0 26px 48px -22px rgba(15,23,42,.28);
   --shadow-red:    0 10px 26px -10px rgba(227,6,19,.55);
 
-  --font:
-    'Inter',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Arial,
-    sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
 }
 
 /* =====================================================
    BASE
 ===================================================== */
 *,*::before,*::after{box-sizing:border-box;}
-
-html{
-  scroll-behavior:smooth;
-  overflow-x:hidden;
-  max-width:100%;
-  -webkit-text-size-adjust:100%;
-}
+html{scroll-behavior:smooth;overflow-x:hidden;max-width:100%;-webkit-text-size-adjust:100%;}
 
 body{
   margin:0;
@@ -114,57 +91,38 @@ body{
 }
 
 img{max-width:100%;display:block;}
-
 ::selection{background:rgba(227,6,19,.18);color:var(--ink);}
 
 /* =====================================================
-   HEADER — PROFESSIONAL DARK
+   HEADER
 ===================================================== */
 .app-header{
-  position:relative;
-  overflow:hidden;
-  isolation:isolate;
+  position:relative;overflow:hidden;isolation:isolate;
   color:#fff;
   background:
     radial-gradient(900px 480px at 84% -40%, rgba(227,6,19,.34) 0%, transparent 62%),
     radial-gradient(720px 400px at 2% 132%, rgba(37,99,235,.20) 0%, transparent 62%),
     linear-gradient(125deg, #060912 0%, #0c1222 38%, #131c33 68%, #1c2745 100%);
   border-bottom:1px solid rgba(255,255,255,.06);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.05) inset,
-    0 26px 60px -40px rgba(0,0,0,.9);
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 26px 60px -40px rgba(0,0,0,.9);
 }
-
-/* Top red accent line */
 .app-header::before{
-  content:"";
-  position:absolute;top:0;left:0;right:0;height:3px;z-index:5;
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:5;
   background:linear-gradient(90deg,
-    var(--jk-red) 0%,
-    var(--jk-red-light) 26%,
-    #ffc2c6 52%,
-    rgba(227,6,19,.20) 78%,
-    transparent 100%);
+    var(--jk-red) 0%, var(--jk-red-light) 26%, #ffc2c6 52%,
+    rgba(227,6,19,.20) 78%, transparent 100%);
 }
-
-/* Soft animated red halo */
 .app-header::after{
-  content:"";
-  position:absolute;
-  right:-180px;top:-220px;
+  content:"";position:absolute;right:-180px;top:-220px;
   width:640px;height:640px;border-radius:50%;
   z-index:0;pointer-events:none;
-  background:radial-gradient(circle,
-    rgba(227,6,19,.40) 0%,
-    rgba(227,6,19,0) 62%);
+  background:radial-gradient(circle, rgba(227,6,19,.40) 0%, rgba(227,6,19,0) 62%);
   animation:headerGlow 9s ease-in-out infinite;
 }
 @keyframes headerGlow{
   0%,100%{opacity:.82;transform:scale(1);}
   50%{opacity:1;transform:scale(1.09);}
 }
-
-/* Fine technical grid */
 .header-grid{
   position:absolute;inset:0;z-index:1;pointer-events:none;
   background-image:
@@ -174,28 +132,18 @@ img{max-width:100%;display:block;}
   -webkit-mask-image:radial-gradient(circle at 72% 30%, #000 0%, transparent 72%);
   mask-image:radial-gradient(circle at 72% 30%, #000 0%, transparent 72%);
 }
-
 .header-inner{
-  position:relative;z-index:3;
-  max-width:1600px;margin:0 auto;
-  padding:24px 30px;
-  display:flex;align-items:center;justify-content:space-between;
+  position:relative;z-index:3;max-width:1600px;margin:0 auto;
+  padding:24px 30px;display:flex;align-items:center;justify-content:space-between;
   gap:26px;flex-wrap:wrap;
 }
-
-/* ---------- Brand block ---------- */
 .header-brand{display:flex;align-items:center;gap:20px;min-width:0;}
 
 .logo-badge{
-  position:relative;flex:0 0 auto;
-  width:68px;height:68px;
-  display:grid;place-items:center;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 50% 38%,
-      rgba(255,255,255,.16) 0%,
-      rgba(255,255,255,.04) 55%,
-      rgba(255,255,255,0) 78%);
+  position:relative;flex:0 0 auto;width:68px;height:68px;
+  display:grid;place-items:center;border-radius:50%;
+  background:radial-gradient(circle at 50% 38%,
+    rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 55%, rgba(255,255,255,0) 78%);
   box-shadow:
     0 0 0 1px rgba(255,255,255,.16),
     0 0 0 5px rgba(255,255,255,.045),
@@ -210,22 +158,15 @@ img{max-width:100%;display:block;}
     0 18px 40px -14px rgba(0,0,0,.85);
 }
 .logo-badge::after{
-  content:"";
-  position:absolute;inset:-14px;border-radius:50%;
-  background:radial-gradient(circle,
-    rgba(227,6,19,.48) 0%,
-    rgba(227,6,19,0) 66%);
-  z-index:-1;pointer-events:none;
-  animation:logoHalo 4.5s ease-in-out infinite;
+  content:"";position:absolute;inset:-14px;border-radius:50%;
+  background:radial-gradient(circle, rgba(227,6,19,.48) 0%, rgba(227,6,19,0) 66%);
+  z-index:-1;pointer-events:none;animation:logoHalo 4.5s ease-in-out infinite;
 }
 @keyframes logoHalo{
   0%,100%{opacity:.7;transform:scale(1);}
   50%{opacity:1;transform:scale(1.13);}
 }
-.jk-logo{
-  width:100%;height:100%;object-fit:contain;
-  border-radius:50%;padding:4px;
-}
+.jk-logo{width:100%;height:100%;object-fit:contain;border-radius:50%;padding:4px;}
 .logo-fallback{
   display:none;font-size:22px;font-weight:900;letter-spacing:1.6px;
   background:linear-gradient(135deg,var(--jk-red-light),#ffd6d8);
@@ -238,41 +179,33 @@ img{max-width:100%;display:block;}
   width:1px;height:52px;flex:0 0 auto;
   background:linear-gradient(180deg,transparent,rgba(255,255,255,.28),transparent);
 }
-
 .header-text{min-width:0;}
-
 .header-kicker{
   display:inline-flex;align-items:center;gap:9px;
   margin-bottom:9px;
-  font-size:10.5px;font-weight:800;
-  letter-spacing:1.5px;text-transform:uppercase;
-  color:rgba(255,255,255,.62);
+  font-size:10.5px;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:rgba(255,255,255,.62);
 }
 .header-kicker::before{
   content:"";width:20px;height:2px;border-radius:2px;flex:0 0 auto;
   background:linear-gradient(90deg,var(--jk-red-light),#ffc2c6);
   box-shadow:0 0 10px rgba(227,6,19,.9);
 }
-
 .header-text h1{
-  margin:0;
-  font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.2;
-  color:#ffffff;
-  text-shadow:0 2px 14px rgba(0,0,0,.35);
+  margin:0;font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.2;
+  color:#ffffff;text-shadow:0 2px 14px rgba(0,0,0,.35);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .header-text h1 .accent{
   background:linear-gradient(90deg,#ff6a6a 0%,#ffb3b8 55%,#ffd6d8 100%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
 }
-
 .header-text p{
   display:flex;align-items:center;gap:10px;
   margin:9px 0 0;
   font-size:12.5px;font-weight:500;letter-spacing:.25px;
   color:rgba(219,214,240,.70);
 }
-
 .tag{
   display:inline-flex;align-items:center;gap:6px;
   padding:4px 11px;font-size:10.5px;font-weight:800;
@@ -290,13 +223,10 @@ img{max-width:100%;display:block;}
   animation:pulseDot 2.4s ease-in-out infinite;
 }
 
-/* ---------- Meta chips ---------- */
 .header-meta{display:flex;align-items:center;gap:12px;flex:0 0 auto;}
-
 .meta-chip{
   display:inline-flex;align-items:center;gap:11px;
-  padding:10px 17px;
-  border-radius:14px;
+  padding:10px 17px;border-radius:14px;
   background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.14);
   -webkit-backdrop-filter:blur(10px) saturate(150%);
@@ -311,10 +241,7 @@ img{max-width:100%;display:block;}
   transform:translateY(-1px);
   box-shadow:0 8px 22px -14px rgba(0,0,0,.9), 0 1px 0 rgba(255,255,255,.14) inset;
 }
-.meta-chip > svg{
-  width:16px;height:16px;flex:0 0 auto;
-  color:rgba(255,200,200,.95);
-}
+.meta-chip > svg{width:16px;height:16px;flex:0 0 auto;color:rgba(255,200,200,.95);}
 .meta-chip-text{display:flex;flex-direction:column;line-height:1.25;}
 .meta-chip-text small{
   font-size:9.5px;font-weight:800;letter-spacing:.95px;
@@ -322,10 +249,8 @@ img{max-width:100%;display:block;}
 }
 .meta-chip-text strong{
   font-size:13px;font-weight:700;letter-spacing:.15px;
-  color:#ffffff;
-  font-variant-numeric:tabular-nums;
+  color:#ffffff;font-variant-numeric:tabular-nums;
 }
-
 .meta-chip.live .live-dot{
   width:8px;height:8px;border-radius:50%;flex:0 0 auto;
   background:#22c55e;
@@ -336,14 +261,11 @@ img{max-width:100%;display:block;}
   0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.24);}
   50%{box-shadow:0 0 0 7px rgba(34,197,94,.05);}
 }
-
 .header-rule{
   position:relative;z-index:3;height:3px;
   background:linear-gradient(90deg,
-    var(--jk-red) 0%,
-    var(--jk-red) 28%,
-    rgba(227,6,19,.15) 68%,
-    transparent 100%);
+    var(--jk-red) 0%, var(--jk-red) 28%,
+    rgba(227,6,19,.15) 68%, transparent 100%);
 }
 
 /* =====================================================
@@ -351,8 +273,7 @@ img{max-width:100%;display:block;}
 ===================================================== */
 .container{
   max-width:1600px;margin:0 auto;
-  padding:34px 30px 76px;width:100%;
-  overflow-x:clip;
+  padding:34px 30px 76px;width:100%;overflow-x:clip;
 }
 
 /* =====================================================
@@ -370,15 +291,11 @@ img{max-width:100%;display:block;}
   min-width:0;overflow:hidden;
 }
 .card::before{
-  content:"";
-  position:absolute;top:0;left:0;right:0;height:3px;
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,
-    transparent 0%,
-    rgba(227,6,19,.14) 26%,
-    rgba(37,99,235,.10) 66%,
-    transparent 100%);
-  opacity:0;
-  transition:opacity .35s ease;
+    transparent 0%, rgba(227,6,19,.14) 26%,
+    rgba(37,99,235,.10) 66%, transparent 100%);
+  opacity:0;transition:opacity .35s ease;
 }
 .card:hover{
   box-shadow:var(--shadow-lg);
@@ -387,12 +304,16 @@ img{max-width:100%;display:block;}
 }
 .card:hover::before{opacity:1;}
 
+.card-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;margin-bottom:10px;
+}
+.card-title-group{min-width:0;flex:1 1 340px;}
+
 .card h2{
   display:flex;align-items:center;gap:12px;
   margin:0 0 10px;
-  font-size:18px;font-weight:800;
-  letter-spacing:-.25px;
-  color:var(--ink);
+  font-size:18px;font-weight:800;letter-spacing:-.25px;color:var(--ink);
 }
 .card h2::before{
   content:"";width:5px;height:20px;border-radius:4px;flex:0 0 auto;
@@ -400,9 +321,7 @@ img{max-width:100%;display:block;}
   box-shadow:0 4px 12px -2px var(--jk-red-glow);
 }
 .card p{
-  margin:0 0 18px;
-  font-size:13.5px;line-height:1.68;
-  color:var(--muted);
+  margin:0 0 18px;font-size:13.5px;line-height:1.68;color:var(--muted);
 }
 .card p strong{color:var(--ink-2);font-weight:700;}
 .section-note{
@@ -412,32 +331,73 @@ img{max-width:100%;display:block;}
 }
 
 /* =====================================================
+   EXPORT GROUP
+===================================================== */
+.export-group{
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  padding:5px;border-radius:14px;
+  background:var(--surface-3);
+  border:1px solid var(--line);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset;
+}
+.export-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;
+  font-family:inherit;
+  font-size:12px;font-weight:700;letter-spacing:.3px;
+  color:var(--slate);
+  background:#ffffff;
+  border:1px solid transparent;
+  border-radius:10px;
+  box-shadow:0 1px 2px rgba(15,23,42,.05);
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.export-btn:hover:not(:disabled){
+  color:#fff;
+  background:linear-gradient(135deg, var(--jk-red) 0%, var(--jk-red-light) 100%);
+  border-color:var(--jk-red);
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px -8px rgba(227,6,19,.7);
+}
+.export-btn:active:not(:disabled){transform:translateY(0);}
+.export-btn svg{width:14px;height:14px;flex:0 0 auto;}
+.export-btn[data-kind="csv"]:hover:not(:disabled){
+  background:linear-gradient(135deg,#0ea5e9,#0284c7);
+  border-color:#0ea5e9;
+  box-shadow:0 8px 18px -8px rgba(14,165,233,.7);
+}
+.export-btn[data-kind="word"]:hover:not(:disabled){
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  border-color:#2563eb;
+  box-shadow:0 8px 18px -8px rgba(37,99,235,.7);
+}
+.export-btn[data-kind="pdf"]:hover:not(:disabled){
+  background:linear-gradient(135deg,#dc2626,#b91c1c);
+  border-color:#dc2626;
+  box-shadow:0 8px 18px -8px rgba(220,38,38,.7);
+}
+.export-btn:disabled{opacity:.55;cursor:not-allowed;}
+
+/* =====================================================
    UPLOAD META
 ===================================================== */
-.upload-meta{
-  display:flex;flex-wrap:wrap;gap:8px;
-  margin:0 0 20px;
-}
+.upload-meta{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;}
 .upload-meta-item{
   display:inline-flex;align-items:center;gap:7px;
-  padding:6px 12px;
-  font-size:11.5px;font-weight:600;
+  padding:6px 12px;font-size:11.5px;font-weight:600;
   color:var(--slate);
   background:var(--surface-3);
   border:1px solid var(--line);
   border-radius:999px;
 }
-.upload-meta-item svg{
-  width:13px;height:13px;
-  color:var(--jk-red);flex:0 0 auto;
-}
+.upload-meta-item svg{width:13px;height:13px;color:var(--jk-red);flex:0 0 auto;}
 .upload-meta-item code{
   font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-size:10.5px;font-weight:700;
   color:var(--jk-red-deep);
   background:rgba(227,6,19,.08);
-  padding:1px 6px;border-radius:5px;
-  letter-spacing:.3px;
+  padding:1px 6px;border-radius:5px;letter-spacing:.3px;
 }
 
 /* =====================================================
@@ -451,25 +411,18 @@ img{max-width:100%;display:block;}
   border:2px dashed #c8d6e5;
   border-radius:var(--radius-lg);
   cursor:pointer;
-  transition:
-    border-color .3s ease,
-    background .3s ease,
-    transform .3s ease,
-    box-shadow .3s ease;
+  transition:border-color .3s ease, background .3s ease, transform .3s ease, box-shadow .3s ease;
   overflow:hidden;
 }
 .upload-area::before{
-  content:"";
-  position:absolute;inset:0;
+  content:"";position:absolute;inset:0;
   background:radial-gradient(circle at 50% 30%, rgba(227,6,19,.06), transparent 65%);
   opacity:0;transition:opacity .3s ease;pointer-events:none;
 }
 .upload-area:hover{
   border-color:var(--jk-red);
   background:linear-gradient(180deg, #fff 0%, #fff6f6 100%);
-  box-shadow:
-    inset 0 0 0 1px rgba(227,6,19,.06),
-    0 14px 34px -20px rgba(227,6,19,.42);
+  box-shadow:inset 0 0 0 1px rgba(227,6,19,.06), 0 14px 34px -20px rgba(227,6,19,.42);
 }
 .upload-area:hover::before{opacity:1;}
 .upload-area.dragover{
@@ -477,9 +430,7 @@ img{max-width:100%;display:block;}
   border-style:solid;
   background:#fff1f2;
   transform:scale(1.006);
-  box-shadow:
-    inset 0 0 0 2px rgba(227,6,19,.12),
-    0 18px 44px -20px rgba(227,6,19,.58);
+  box-shadow:inset 0 0 0 2px rgba(227,6,19,.12), 0 18px 44px -20px rgba(227,6,19,.58);
 }
 .upload-icon{
   display:grid;place-items:center;
@@ -491,9 +442,7 @@ img{max-width:100%;display:block;}
   box-shadow:0 10px 24px -12px rgba(227,6,19,.42);
   transition:transform .35s cubic-bezier(.34,1.56,.64,1);
 }
-.upload-area:hover .upload-icon{
-  transform:translateY(-4px) rotate(-4deg) scale(1.06);
-}
+.upload-area:hover .upload-icon{transform:translateY(-4px) rotate(-4deg) scale(1.06);}
 .upload-icon svg{width:30px;height:30px;}
 
 .upload-title{
@@ -512,19 +461,15 @@ img{max-width:100%;display:block;}
   overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
 }
 .file-name{
-  display:none;
-  margin:0 auto 18px;
-  max-width:480px;
-  padding:11px 18px;
-  font-size:12.5px;font-weight:600;
+  display:none;margin:0 auto 18px;max-width:480px;
+  padding:11px 18px;font-size:12.5px;font-weight:600;
   color:var(--info);
   background:linear-gradient(180deg, #e0f2fe, #d8ecfd);
   border:1px solid var(--info-line);
   border-radius:12px;
   word-break:break-all;
   box-shadow:0 6px 16px -8px rgba(37,99,235,.30);
-  align-items:center;
-  gap:10px;
+  align-items:center;gap:10px;
 }
 .file-name.show{display:inline-flex;}
 .file-name::before{
@@ -538,8 +483,7 @@ img{max-width:100%;display:block;}
 ===================================================== */
 button{
   font-family:inherit;
-  font-size:14px;font-weight:700;
-  letter-spacing:.25px;
+  font-size:14px;font-weight:700;letter-spacing:.25px;
   color:#fff;
   background:linear-gradient(135deg, var(--jk-red) 0%, var(--jk-red-light) 55%, #ff5a4e 100%);
   background-size:150% 150%;
@@ -575,24 +519,20 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
   to{opacity:1;transform:translateY(0);}
 }
 #status.success{
-  color:#047857;
-  background:var(--ok-bg);
+  color:#047857;background:var(--ok-bg);
   border:1px solid var(--ok-line);
   box-shadow:0 6px 20px -12px rgba(5,150,105,.40);
 }
 #status.error{
-  color:#b91c1c;
-  background:var(--bad-bg);
+  color:#b91c1c;background:var(--bad-bg);
   border:1px solid var(--bad-line);
   box-shadow:0 6px 20px -12px rgba(220,38,38,.40);
 }
 #status.loading{
-  color:#1d4ed8;
-  background:var(--info-bg);
+  color:#1d4ed8;background:var(--info-bg);
   border:1px solid var(--info-line);
   box-shadow:0 6px 20px -12px rgba(37,99,235,.40);
 }
-
 .spinner{
   flex:0 0 auto;width:15px;height:15px;
   border:2.5px solid currentColor;border-top-color:transparent;
@@ -606,10 +546,8 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 .filter-grid{
   display:grid;
   grid-template-columns:2fr 1fr 1fr auto;
-  gap:16px;
-  align-items:end;
-  margin:20px 0 24px;
-  padding:18px;
+  gap:16px;align-items:end;
+  margin:20px 0 22px;padding:18px;
   background:linear-gradient(180deg, #fbfdff 0%, #f7fafd 100%);
   border:1px solid var(--line-2);
   border-radius:var(--radius);
@@ -621,17 +559,14 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
   letter-spacing:.8px;text-transform:uppercase;
   color:var(--muted);
 }
-.filter-item label svg{
-  width:12px;height:12px;color:var(--jk-red);
-}
+.filter-item label svg{width:12px;height:12px;color:var(--jk-red);}
 .filter-item select{
   width:100%;
   padding:12px 36px 12px 14px;
   font-family:inherit;font-size:13.5px;font-weight:600;
   color:var(--ink);
   background-color:#fff;
-  background-image:
-    url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+  background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
   background-repeat:no-repeat;
   background-position:right 12px center;
   background-size:15px;
@@ -647,10 +582,7 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
   border-color:var(--jk-red);
   box-shadow:0 0 0 4px rgba(227,6,19,.12);
 }
-.filter-button button{
-  width:100%;
-  padding:13px 28px;
-}
+.filter-button button{width:100%;padding:13px 28px;}
 
 /* =====================================================
    SKU SELECTED BAR
@@ -658,14 +590,11 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 .sku-bar{
   display:flex;align-items:center;justify-content:space-between;
   gap:16px;flex-wrap:wrap;
-  margin:6px 0 12px;
-  padding:16px 22px;
+  margin:6px 0 12px;padding:16px 22px;
   font-size:15px;font-weight:800;letter-spacing:-.1px;
   color:var(--ink);
   background:linear-gradient(90deg,
-    rgba(227,6,19,.09) 0%,
-    rgba(227,6,19,.02) 55%,
-    rgba(227,6,19,0) 100%);
+    rgba(227,6,19,.09) 0%, rgba(227,6,19,.02) 55%, rgba(227,6,19,0) 100%);
   border-left:4px solid var(--jk-red);
   border-radius:var(--radius-sm);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
@@ -684,8 +613,7 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 ===================================================== */
 .missing-info{
   display:flex;gap:10px;align-items:flex-start;
-  margin:12px 0 18px;
-  padding:13px 18px;
+  margin:12px 0 18px;padding:13px 18px;
   font-size:12.5px;line-height:1.65;
   color:#92400e;
   background:linear-gradient(90deg, #fffbeb, #fefce8);
@@ -702,8 +630,7 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 .kpi-grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
-  gap:16px;
-  margin:22px 0 24px;
+  gap:16px;margin:22px 0 24px;
 }
 .kpi{
   position:relative;
@@ -729,20 +656,17 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
   border-color:#dbe4f0;
   box-shadow:0 18px 34px -24px rgba(15,23,42,.4);
 }
-
 .kpi-top{
   display:flex;align-items:flex-start;justify-content:space-between;
   gap:10px;margin-bottom:12px;
 }
 .kpi-label{
   font-size:10.5px;font-weight:800;letter-spacing:.8px;
-  text-transform:uppercase;color:var(--muted);
-  line-height:1.3;
+  text-transform:uppercase;color:var(--muted);line-height:1.3;
 }
 .kpi-icon{
   width:30px;height:30px;flex:0 0 auto;
-  display:grid;place-items:center;
-  border-radius:9px;
+  display:grid;place-items:center;border-radius:9px;
   color:var(--jk-red);
   background:rgba(227,6,19,.09);
 }
@@ -751,42 +675,55 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
 .kpi.is-info .kpi-icon{color:var(--info);background:rgba(37,99,235,.11);}
 .kpi.is-neutral .kpi-icon{color:var(--muted);background:rgba(100,116,139,.11);}
 .kpi-icon svg{width:15px;height:15px;}
-
 .kpi-value{
   font-size:25px;font-weight:800;letter-spacing:-.7px;
   color:var(--ink);line-height:1.1;
   display:flex;align-items:baseline;gap:5px;
   font-variant-numeric:tabular-nums;
 }
-.kpi-value .unit{
-  font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0;
-}
-.kpi-sub{
-  margin-top:9px;font-size:11.5px;font-weight:600;
-  color:var(--faint);
-}
+.kpi-value .unit{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:0;}
+.kpi-sub{margin-top:9px;font-size:11.5px;font-weight:600;color:var(--faint);}
 
 /* =====================================================
-   CHART
+   PANEL TITLE
+===================================================== */
+.panel-title{
+  display:flex;align-items:center;gap:10px;
+  margin:28px 0 14px;
+  font-size:11.5px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--muted);
+}
+.panel-title::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--jk-red);
+  box-shadow:0 0 0 4px rgba(227,6,19,.14);
+}
+.panel-title .hint{
+  margin-left:auto;
+  font-size:10.5px;font-weight:600;letter-spacing:.3px;
+  text-transform:none;color:var(--faint);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.panel-title .hint svg{width:12px;height:12px;}
+
+/* =====================================================
+   CHART CONTAINERS
 ===================================================== */
 .chart-wrapper{
-  position:relative;
-  min-width:0;
-  height:460px;
+  position:relative;min-width:0;
+  height:440px;
   padding:16px 18px 12px;
   background:linear-gradient(180deg, #ffffff 0%, #fdfdff 100%);
   border:1px solid var(--line);
   border-radius:var(--radius);
   overflow:hidden;
 }
+.chart-wrapper.tall{height:500px;}
 
 /* =====================================================
    SCROLLBARS
 ===================================================== */
-.table-wrapper{
-  scrollbar-width:thin;
-  scrollbar-color:#cbd5e1 #f1f5f9;
-}
+.table-wrapper{scrollbar-width:thin;scrollbar-color:#cbd5e1 #f1f5f9;}
 .table-wrapper::-webkit-scrollbar{height:10px;width:10px;}
 .table-wrapper::-webkit-scrollbar-track{background:#f1f5f9;border-radius:8px;}
 .table-wrapper::-webkit-scrollbar-thumb{
@@ -798,20 +735,14 @@ button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none;}
    TABLE
 ===================================================== */
 .table-wrapper{
-  width:100%;
-  overflow-x:auto;
-  overflow-y:hidden;
+  width:100%;overflow-x:auto;overflow-y:hidden;
   border:1px solid var(--line);
   border-radius:var(--radius);
-  background:#fff;
-  min-width:0;
+  background:#fff;min-width:0;
   margin-top:8px;
   box-shadow:0 2px 8px -4px rgba(15,23,42,.06);
 }
-table{
-  width:100%;border-collapse:separate;border-spacing:0;
-  font-size:13px;
-}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;}
 th{
   position:sticky;top:0;z-index:2;
   padding:15px 14px;
@@ -852,19 +783,14 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   white-space:nowrap;
 }
 .badge.ok{
-  color:var(--ok);
-  background:var(--ok-bg);
+  color:var(--ok);background:var(--ok-bg);
   border:1px solid var(--ok-line);
 }
 .badge.bad{
-  color:var(--bad);
-  background:var(--bad-bg);
+  color:var(--bad);background:var(--bad-bg);
   border:1px solid var(--bad-line);
 }
-.badge::before{
-  content:"";width:6px;height:6px;border-radius:50%;
-  background:currentColor;
-}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
 
 .empty-cell{
   padding:52px 16px !important;
@@ -878,21 +804,17 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
 ===================================================== */
 .empty-state{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;padding:70px 20px;text-align:center;
-  position:relative;
+  gap:14px;padding:70px 20px;text-align:center;position:relative;
 }
 .empty-state::before{
-  content:"";
-  position:absolute;
+  content:"";position:absolute;
   width:340px;height:340px;border-radius:50%;
   background:radial-gradient(circle, rgba(227,6,19,.07), transparent 65%);
   pointer-events:none;
 }
 .empty-state svg{
   width:54px;height:54px;
-  color:var(--jk-red);
-  position:relative;
-  opacity:.7;
+  color:var(--jk-red);position:relative;opacity:.7;
 }
 .empty-state h3{
   margin:0;font-size:17px;font-weight:800;
@@ -902,17 +824,14 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   margin:0;font-size:13.5px;color:var(--muted);
   max-width:440px;position:relative;line-height:1.7;
 }
-
 .hidden{display:none !important;}
 
 /* =====================================================
    FOOTER
 ===================================================== */
 .app-footer{
-  padding:26px 30px 46px;
-  text-align:center;
-  font-size:12.5px;
-  color:var(--faint);
+  padding:26px 30px 46px;text-align:center;
+  font-size:12.5px;color:var(--faint);
   border-top:1px solid var(--line-2);
   margin-top:12px;
 }
@@ -938,6 +857,7 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   .container{padding:24px 18px 64px;}
   .card{padding:22px 20px;}
   .chart-wrapper{height:380px;}
+  .chart-wrapper.tall{height:420px;}
   .kpi-value{font-size:21px;}
 }
 
@@ -947,8 +867,10 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   .filter-grid{grid-template-columns:1fr;padding:14px;}
   .kpi-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}
   .chart-wrapper{height:340px;}
+  .chart-wrapper.tall{height:380px;}
   .upload-area{padding:32px 18px 30px;}
   .upload-icon{width:60px;height:60px;}
+  .export-group{width:100%;justify-content:flex-start;}
 }
 </style>
 </head>
@@ -1072,14 +994,54 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
        SKU MONTHLY RUNNING WEIGHT ANALYSIS
   ================================================== -->
   <section class="card" id="skuAnalysisCard">
-    <h2>SKU Monthly Running Weight Analysis</h2>
-    <p class="section-note">
-      SKUs may appear in any order inside each monthly sheet. The dashboard first
-      groups the supplied records by SKU and arranges each SKU chronologically by
-      month. It does not recalculate the supplied Spec, Actual, bucket counts,
-      Total tyres or % adher. values. Missing months remain visible as
-      <strong>No data</strong> and are never treated as zero.
-    </p>
+    <div class="card-head">
+      <div class="card-title-group">
+        <h2>SKU Monthly Running Weight Analysis</h2>
+        <p class="section-note">
+          SKUs may appear in any order inside each monthly sheet. The dashboard groups
+          supplied records by SKU and arranges each SKU chronologically by month. It does
+          not recalculate the supplied Spec, Actual, bucket counts, Total tyres or %
+          adher. values. Missing months remain visible as <strong>No data</strong> and are
+          never treated as zero.
+        </p>
+      </div>
+
+      <!-- Export buttons (initially hidden until data loads) -->
+      <div class="export-group hidden" id="exportGroup">
+        <button type="button" class="export-btn" data-kind="csv" id="exportCsvBtn" title="Download CSV">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="8" y1="13" x2="16" y2="13"/>
+            <line x1="8" y1="17" x2="16" y2="17"/>
+          </svg>
+          CSV
+        </button>
+
+        <button type="button" class="export-btn" data-kind="word" id="exportWordBtn" title="Download Word document">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M8 13l2 6 2-6 2 6 2-6"/>
+          </svg>
+          Word
+        </button>
+
+        <button type="button" class="export-btn" data-kind="pdf" id="exportPdfBtn" title="Print / Save as PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M9 15h1.5a1.5 1.5 0 0 0 0-3H9v6"/>
+            <path d="M14 12v6"/>
+            <path d="M14 12h2"/>
+          </svg>
+          PDF
+        </button>
+      </div>
+    </div>
 
     <!-- Empty state -->
     <div class="empty-state" id="emptyState">
@@ -1121,9 +1083,7 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
             </svg>
             From Month
           </label>
-          <select id="fromMonth">
-            <option value="">—</option>
-          </select>
+          <select id="fromMonth"><option value="">—</option></select>
         </div>
 
         <div class="filter-item">
@@ -1137,15 +1097,15 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
             </svg>
             To Month
           </label>
-          <select id="toMonth">
-            <option value="">—</option>
-          </select>
+          <select id="toMonth"><option value="">—</option></select>
         </div>
 
         <div class="filter-item filter-button">
           <button type="button" id="applySkuFilter">Apply Filter</button>
         </div>
       </div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
 
       <div class="sku-bar">
         <span id="skuSelectedTitle">Select a SKU</span>
@@ -1154,12 +1114,38 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
 
       <div id="skuMissingInfo" class="missing-info hidden"></div>
 
-      <div class="kpi-grid" id="kpiGrid"></div>
-
-      <div class="chart-wrapper">
+      <!-- Chart 1: Monthly trend -->
+      <div class="panel-title">
+        Monthly Trend · Spec vs Running Weight
+        <span class="hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+          Hover to inspect any month
+        </span>
+      </div>
+      <div class="chart-wrapper tall">
         <canvas id="skuMonthlyChart"></canvas>
       </div>
 
+      <!-- Chart 2: Monthly avg vs full-year avg -->
+      <div class="panel-title">
+        Monthly Average vs Full-Year Average
+        <span class="hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+          Green = within ±2% · Red = out of limit
+        </span>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="skuYearlyBarChart"></canvas>
+      </div>
+
+      <!-- Detail table -->
+      <div class="panel-title">Month-wise Detail</div>
       <div class="table-wrapper">
         <table>
           <thead>
@@ -1167,14 +1153,15 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
               <th>Month</th>
               <th>Spec (kg)</th>
               <th>Avg Running Weight (kg)</th>
-              <th>−2% Limit</th>
-              <th>+2% Limit</th>
+              <th>Deviation</th>
+              <th>Lower (−2%)</th>
+              <th>Upper (+2%)</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody id="skuMonthTable">
             <tr>
-              <td colspan="6" class="empty-cell">
+              <td colspan="7" class="empty-cell">
                 Upload an Excel file to view SKU level monthly analysis.
               </td>
             </tr>
@@ -1192,6 +1179,7 @@ tr.missing-row:hover td{background:#f9f5f0 !important;}
   Supplied data is displayed as-is without recalculation.
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 /* =========================================================
    CHART GLOBAL DEFAULTS
@@ -1205,7 +1193,15 @@ Chart.defaults.color = "#64748b";
    STATE
 ========================================================= */
 let skuMonthlyChartInstance = null;
+let skuYearlyBarChartInstance = null;
 let dashboardData = null;
+const state = {
+  months: [],
+  points: [],
+  sku: "",
+  kpiData: [],
+  busy: false
+};
 
 /* =========================================================
    HELPERS
@@ -1214,13 +1210,11 @@ function n(v, d = 2) {
   const x = Number(v);
   return Number.isFinite(x) ? x.toFixed(d) : "—";
 }
-
 function signed(v, d = 3) {
   const x = Number(v);
   if (!Number.isFinite(x)) return "—";
   return (x >= 0 ? "+" : "") + x.toFixed(d);
 }
-
 function escapeHtml(value) {
   return String(value == null ? "" : value)
     .replace(/&/g, "&amp;")
@@ -1229,18 +1223,42 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
 function formatMonthLabel(value) {
   const m = String(value || "").match(/^(\d{4})-(\d{2})$/);
   if (!m) return value;
   const names = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return names[Number(m[2]) - 1] + "-" + m[1].slice(2);
 }
-
 function mean(arr) {
   const vals = arr.filter(v => Number.isFinite(v));
   if (!vals.length) return null;
   return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+function safeFileBase(name) {
+  return String(name || "SKU").replace(/[^\w\-\.]+/g, "_");
+}
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+}
+function setBusy(flag, label) {
+  state.busy = flag;
+  ["exportCsvBtn","exportWordBtn","exportPdfBtn"].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = flag;
+    if (flag && label && b.dataset.kind === label) {
+      b.dataset.originalText = b.dataset.originalText || b.innerHTML;
+      b.innerHTML = '<span class="spinner" style="border-color:currentColor;border-top-color:transparent;"></span> Preparing…';
+    } else if (!flag && b.dataset.originalText) {
+      b.innerHTML = b.dataset.originalText;
+      delete b.dataset.originalText;
+    }
+  });
 }
 
 /* =========================================================
@@ -1254,10 +1272,8 @@ function populateFilters(data) {
 
   const skus = data.sku_values || data.skus || [];
   const months =
-    data.continuous_months ||
-    data.month_values ||
-    (data.meta && data.meta.months) ||
-    [];
+    data.continuous_months || data.month_values ||
+    (data.meta && data.meta.months) || [];
 
   skuSelect.innerHTML = skus.length
     ? skus.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")
@@ -1266,7 +1282,6 @@ function populateFilters(data) {
   const opts = months
     .map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`)
     .join("");
-
   from.innerHTML = opts;
   to.innerHTML = opts;
 
@@ -1278,30 +1293,22 @@ function populateFilters(data) {
 }
 
 /* =========================================================
-   KPI COMPUTATION
+   KPI
 ========================================================= */
 function kpiIcon(tone) {
-  if (tone === "is-ok") {
+  if (tone === "is-ok")
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-  }
-  if (tone === "is-bad") {
+  if (tone === "is-bad")
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-  }
-  if (tone === "is-info") {
+  if (tone === "is-info")
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
-  }
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>';
 }
 
 function computeKpis(selected, points) {
   const withData = points.filter(Boolean);
-
-  const specVals = withData
-    .map(r => r.spec == null ? null : Number(r.spec))
-    .filter(Number.isFinite);
-  const avgVals = withData
-    .map(r => r.average_running_weight == null ? null : Number(r.average_running_weight))
-    .filter(Number.isFinite);
+  const specVals = withData.map(r => r.spec == null ? null : Number(r.spec)).filter(Number.isFinite);
+  const avgVals = withData.map(r => r.average_running_weight == null ? null : Number(r.average_running_weight)).filter(Number.isFinite);
 
   const avgSpec = mean(specVals);
   const avgRun = mean(avgVals);
@@ -1329,53 +1336,22 @@ function computeKpis(selected, points) {
   });
 
   const compliance = evaluated ? (within / evaluated) * 100 : null;
-
-  const devTone =
-    devPct == null ? "is-neutral" :
-    Math.abs(devPct) <= 2 ? "is-ok" : "is-bad";
-
-  const compTone =
-    compliance == null ? "is-neutral" :
-    compliance >= 80 ? "is-ok" : "is-bad";
+  const devTone = devPct == null ? "is-neutral" : Math.abs(devPct) <= 2 ? "is-ok" : "is-bad";
+  const compTone = compliance == null ? "is-neutral" : compliance >= 80 ? "is-ok" : "is-bad";
 
   return [
-    {
-      label: "Average Spec",
-      value: avgSpec == null ? "—" : n(avgSpec, 3),
-      unit: "kg",
-      sub: specVals.length + " month" + (specVals.length === 1 ? "" : "s") + " with spec",
-      tone: "is-neutral"
-    },
-    {
-      label: "Avg Running Weight",
-      value: avgRun == null ? "—" : n(avgRun, 3),
-      unit: "kg",
-      sub: avgVals.length + " month" + (avgVals.length === 1 ? "" : "s") + " with actuals",
-      tone: "is-info"
-    },
-    {
-      label: "Deviation",
-      value: devPct == null ? "—" : (devPct >= 0 ? "+" : "") + devPct.toFixed(2),
-      unit: "%",
-      sub: devKg == null ? "—" : signed(devKg, 3) + " kg vs spec",
-      tone: devTone
-    },
-    {
-      label: "Months Covered",
-      value: String(withData.length),
-      unit: "/ " + selected.length,
+    { label: "Average Spec", value: avgSpec == null ? "—" : n(avgSpec, 3), unit: "kg",
+      sub: specVals.length + " month" + (specVals.length === 1 ? "" : "s") + " with spec", tone: "is-neutral" },
+    { label: "Avg Running Weight", value: avgRun == null ? "—" : n(avgRun, 3), unit: "kg",
+      sub: avgVals.length + " month" + (avgVals.length === 1 ? "" : "s") + " with actuals", tone: "is-info" },
+    { label: "Deviation", value: devPct == null ? "—" : (devPct >= 0 ? "+" : "") + devPct.toFixed(2), unit: "%",
+      sub: devKg == null ? "—" : signed(devKg, 3) + " kg vs spec", tone: devTone },
+    { label: "Months Covered", value: String(withData.length), unit: "/ " + selected.length,
       sub: selected.length - withData.length > 0
         ? (selected.length - withData.length) + " month(s) missing"
-        : "Complete coverage",
-      tone: "is-neutral"
-    },
-    {
-      label: "Within ±2%",
-      value: compliance == null ? "—" : compliance.toFixed(1),
-      unit: "%",
-      sub: within + " of " + evaluated + " month(s)",
-      tone: compTone
-    }
+        : "Complete coverage", tone: "is-neutral" },
+    { label: "Within ±2%", value: compliance == null ? "—" : compliance.toFixed(1), unit: "%",
+      sub: within + " of " + evaluated + " month(s)", tone: compTone }
   ];
 }
 
@@ -1383,7 +1359,7 @@ function renderKpis(selected, points) {
   const grid = document.getElementById("kpiGrid");
   if (!grid) return;
   const cards = computeKpis(selected, points);
-
+  state.kpiData = cards;
   grid.innerHTML = cards.map(c =>
     '<div class="kpi ' + c.tone + '">' +
       '<div class="kpi-top">' +
@@ -1399,7 +1375,351 @@ function renderKpis(selected, points) {
 }
 
 /* =========================================================
-   SKU MONTHLY ANALYSIS
+   CHART 1 — Monthly Trend (Line)
+========================================================= */
+function renderLineChart(selected, points) {
+  const ctx = document.getElementById("skuMonthlyChart");
+  if (!ctx) return;
+  if (skuMonthlyChartInstance) skuMonthlyChartInstance.destroy();
+
+  const missing = points.map((r, i) => (r ? null : i)).filter(i => i !== null);
+
+  const missingPlugin = {
+    id: "missingMonthIndicator",
+    afterDraw(chart) {
+      if (!missing.length || !chart.scales.x) return;
+      const c = chart.ctx;
+      c.save();
+      c.font = "700 11px Inter, Arial";
+      c.textAlign = "center";
+      c.fillStyle = "#94a3b8";
+      missing.forEach(i => {
+        const x = chart.scales.x.getPixelForValue(i);
+        c.setLineDash([5, 5]);
+        c.strokeStyle = "#cbd5e1";
+        c.beginPath();
+        c.moveTo(x, chart.chartArea.top);
+        c.lineTo(x, chart.chartArea.bottom);
+        c.stroke();
+        c.setLineDash([]);
+        c.fillText("No data", x, chart.chartArea.top + 16);
+      });
+      c.restore();
+    }
+  };
+
+  skuMonthlyChartInstance = new Chart(ctx, {
+    type: "line",
+    plugins: [missingPlugin],
+    data: {
+      labels: selected.map(formatMonthLabel),
+      datasets: [
+        {
+          label: "Average Running Weight",
+          data: points.map(r => r ? Number(r.average_running_weight) : null),
+          borderColor: "#e30613",
+          backgroundColor: "rgba(227,6,19,.06)",
+          borderWidth: 3,
+          spanGaps: true,
+          tension: 0.28,
+          pointRadius: 5,
+          pointHoverRadius: 9,
+          pointBackgroundColor: "#e30613",
+          pointBorderColor: "#ffffff",
+          pointBorderWidth: 2.5,
+          pointHoverBorderWidth: 3,
+          fill: false
+        },
+        {
+          label: "Spec",
+          data: points.map(r => r ? Number(r.spec) : null),
+          borderColor: "#0f172a",
+          backgroundColor: "#0f172a",
+          borderWidth: 2,
+          borderDash: [6, 4],
+          spanGaps: true,
+          tension: 0.2,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: "#0f172a",
+          pointBorderColor: "#ffffff",
+          pointBorderWidth: 2,
+          fill: false
+        },
+        {
+          label: "−2% Limit",
+          data: points.map(r => r && r.minus_2_percent != null ? Number(r.minus_2_percent) : null),
+          borderColor: "#f59e0b",
+          backgroundColor: "#f59e0b",
+          borderWidth: 1.8,
+          borderDash: [3, 3],
+          spanGaps: true,
+          tension: 0.2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: "#f59e0b",
+          fill: false
+        },
+        {
+          label: "+2% Limit",
+          data: points.map(r => r && r.plus_2_percent != null ? Number(r.plus_2_percent) : null),
+          borderColor: "#2563eb",
+          backgroundColor: "#2563eb",
+          borderWidth: 1.8,
+          borderDash: [3, 3],
+          spanGaps: true,
+          tension: 0.2,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: "#2563eb",
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      animation: { duration: 900, easing: "easeOutQuart" },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#64748b", font: { weight: "600", size: 11.5 } }
+        },
+        y: {
+          grid: { color: "#eef2f7" },
+          ticks: { color: "#64748b", font: { weight: "600", size: 11.5 } },
+          title: {
+            display: true, text: "Weight (kg)",
+            color: "#475569", font: { weight: "700", size: 12 }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true, position: "top", align: "end",
+          labels: {
+            usePointStyle: true, pointStyle: "line",
+            boxWidth: 26, padding: 18,
+            color: "#334155", font: { weight: "700", size: 12 }
+          }
+        },
+        tooltip: {
+          backgroundColor: "#0b1220",
+          padding: 14, cornerRadius: 10,
+          titleFont: { weight: "800", size: 13 },
+          bodyFont: { weight: "600", size: 12.5 },
+          bodySpacing: 6, boxPadding: 6,
+          borderColor: "rgba(255,255,255,.08)", borderWidth: 1
+        }
+      }
+    }
+  });
+}
+
+/* =========================================================
+   CHART 2 — Monthly vs Full-Year Average (Bar)
+========================================================= */
+function renderBarChart(selected, points) {
+  const ctx = document.getElementById("skuYearlyBarChart");
+  if (!ctx) return;
+  if (skuYearlyBarChartInstance) skuYearlyBarChartInstance.destroy();
+
+  const avgVals = points.filter(Boolean)
+    .map(r => r.average_running_weight == null ? null : Number(r.average_running_weight))
+    .filter(Number.isFinite);
+  const yearAvg = mean(avgVals);
+
+  const colors = points.map(r => {
+    if (!r) return "rgba(203,213,225,.55)";
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    if (!Number.isFinite(run)) return "rgba(203,213,225,.55)";
+    if (Number.isFinite(lo) && Number.isFinite(hi)) {
+      return (run >= Math.min(lo, hi) && run <= Math.max(lo, hi))
+        ? "rgba(5,150,105,.85)" : "rgba(220,38,38,.85)";
+    }
+    return "rgba(148,163,184,.85)";
+  });
+
+  const borders = points.map(r => {
+    if (!r) return "rgba(148,163,184,.6)";
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+    if (!Number.isFinite(run)) return "rgba(148,163,184,.6)";
+    if (Number.isFinite(lo) && Number.isFinite(hi)) {
+      return (run >= Math.min(lo, hi) && run <= Math.max(lo, hi))
+        ? "#059669" : "#dc2626";
+    }
+    return "#94a3b8";
+  });
+
+  const yearlyLinePlugin = {
+    id: "yearlyAverageLine",
+    afterDraw(chart) {
+      if (yearAvg == null) return;
+      const yScale = chart.scales.y;
+      const y = yScale.getPixelForValue(yearAvg);
+      const c = chart.ctx;
+      c.save();
+      c.setLineDash([7, 5]);
+      c.strokeStyle = "#0f172a";
+      c.lineWidth = 1.8;
+      c.beginPath();
+      c.moveTo(chart.chartArea.left, y);
+      c.lineTo(chart.chartArea.right, y);
+      c.stroke();
+      c.setLineDash([]);
+
+      const label = "Full-Year Avg  " + yearAvg.toFixed(3) + " kg";
+      c.font = "800 11px Inter, Arial";
+      const tw = c.measureText(label).width;
+      const bx = chart.chartArea.right - tw - 22;
+      const by = y - 22;
+      c.fillStyle = "#ffffff";
+      c.strokeStyle = "#e5eaf2";
+      c.lineWidth = 1;
+      c.beginPath();
+      if (c.roundRect) {
+        c.roundRect(bx, by, tw + 16, 20, 8);
+      } else {
+        c.rect(bx, by, tw + 16, 20);
+      }
+      c.fill(); c.stroke();
+
+      c.fillStyle = "#0f172a";
+      c.fillText(label, bx + 8, by + 14);
+      c.restore();
+    }
+  };
+
+  skuYearlyBarChartInstance = new Chart(ctx, {
+    type: "bar",
+    plugins: [yearlyLinePlugin],
+    data: {
+      labels: selected.map(formatMonthLabel),
+      datasets: [{
+        label: "Monthly Average Running Weight",
+        data: points.map(r => r && r.average_running_weight != null ? Number(r.average_running_weight) : null),
+        backgroundColor: colors,
+        borderColor: borders,
+        borderWidth: 1.4,
+        borderRadius: 8,
+        maxBarThickness: 46,
+        categoryPercentage: 0.7,
+        barPercentage: 0.75
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 900, easing: "easeOutQuart" },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#64748b", font: { weight: "600", size: 11.5 } }
+        },
+        y: {
+          grid: { color: "#eef2f7" },
+          ticks: { color: "#64748b", font: { weight: "600", size: 11.5 } },
+          title: {
+            display: true, text: "Weight (kg)",
+            color: "#475569", font: { weight: "700", size: 12 }
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#0b1220",
+          padding: 14, cornerRadius: 10,
+          titleFont: { weight: "800", size: 13 },
+          bodyFont: { weight: "600", size: 12.5 },
+          bodySpacing: 6, boxPadding: 6,
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed.y;
+              return "Avg Running Weight: " + (Number.isFinite(v) ? v.toFixed(3) + " kg" : "No data");
+            },
+            afterLabel: (ctx) => {
+              if (yearAvg == null) return "";
+              return "Full-Year Avg: " + yearAvg.toFixed(3) + " kg";
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+function renderTable(selected, points) {
+  const tbody = document.getElementById("skuMonthTable");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  if (!selected.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">No months selected.</td></tr>';
+    return;
+  }
+
+  selected.forEach((m, i) => {
+    const r = points[i];
+
+    if (!r) {
+      tbody.insertAdjacentHTML("beforeend",
+        '<tr class="missing-row">' +
+          '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+          '<td colspan="6">No data</td>' +
+        '</tr>');
+      return;
+    }
+
+    const spec = r.spec == null ? null : Number(r.spec);
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+
+    let dev = null, devPct = null;
+    if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+      dev = run - spec;
+      devPct = (dev / spec) * 100;
+    }
+
+    let ok = null;
+    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
+      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+    } else if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+      ok = devPct >= -2 && devPct <= 2;
+    }
+
+    const badge = ok === null
+      ? '<span style="color:var(--faint);font-weight:700;">—</span>'
+      : ok
+        ? '<span class="badge ok">Within limit</span>'
+        : '<span class="badge bad">Out of limit</span>';
+
+    tbody.insertAdjacentHTML("beforeend",
+      '<tr class="' + (ok === false ? "row-out" : "") + '">' +
+        '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+        '<td>' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
+        '<td>' + (run == null ? "—" : n(run, 3)) + '</td>' +
+        '<td>' + (dev == null ? "—" :
+          signed(dev, 3) + (devPct == null ? "" :
+            ' <span style="color:var(--faint);font-weight:600;">(' + signed(devPct, 2) + '%)</span>')) + '</td>' +
+        '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
+        '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+        '<td>' + badge + '</td>' +
+      '</tr>');
+  });
+}
+
+/* =========================================================
+   MASTER RENDER
 ========================================================= */
 function renderSkuAnalysis() {
   if (!dashboardData) return;
@@ -1432,9 +1752,9 @@ function renderSkuAnalysis() {
   const byMonth = new Map(rows.map(r => [String(r.month), r]));
   const points = selected.map(m => byMonth.get(String(m)) || null);
 
-  const missing = points
-    .map((r, i) => (r ? null : i))
-    .filter(i => i !== null);
+  state.months = selected;
+  state.points = points;
+  state.sku = sku;
 
   /* Selected SKU title */
   const title = document.getElementById("skuSelectedTitle");
@@ -1455,6 +1775,7 @@ function renderSkuAnalysis() {
   }
 
   /* Missing info */
+  const missing = points.map((r, i) => (r ? null : i)).filter(i => i !== null);
   const info = document.getElementById("skuMissingInfo");
   if (info) {
     if (missing.length) {
@@ -1471,226 +1792,416 @@ function renderSkuAnalysis() {
     }
   }
 
-  /* KPI strip */
   renderKpis(selected, points);
+  renderLineChart(selected, points);
+  renderBarChart(selected, points);
+  renderTable(selected, points);
+}
 
-  /* ---------- Chart ---------- */
-  const ctx = document.getElementById("skuMonthlyChart");
-  if (ctx) {
-    if (skuMonthlyChartInstance) skuMonthlyChartInstance.destroy();
+/* =========================================================
+   CSV EXPORT
+========================================================= */
+function exportCsv() {
+  if (!state.months.length) return;
 
-    const missingPlugin = {
-      id: "missingMonthIndicator",
-      afterDraw(chart) {
-        if (!missing.length || !chart.scales.x) return;
-        const c = chart.ctx;
-        c.save();
-        c.font = "700 11px Inter, Arial";
-        c.textAlign = "center";
-        c.fillStyle = "#94a3b8";
+  const header = ["Month", "Spec (kg)", "Avg Running Weight (kg)", "Deviation (kg)", "Deviation (%)", "Lower (-2%)", "Upper (+2%)", "Status"];
+  const lines = [header.join(",")];
 
-        missing.forEach(i => {
-          const x = chart.scales.x.getPixelForValue(i);
-          c.setLineDash([5, 5]);
-          c.strokeStyle = "#cbd5e1";
-          c.beginPath();
-          c.moveTo(x, chart.chartArea.top);
-          c.lineTo(x, chart.chartArea.bottom);
-          c.stroke();
-          c.setLineDash([]);
-
-          c.fillText("No data", x, chart.chartArea.top + 16);
-        });
-
-        c.restore();
-      }
-    };
-
-    skuMonthlyChartInstance = new Chart(ctx, {
-      type: "line",
-      plugins: [missingPlugin],
-      data: {
-        labels: selected.map(formatMonthLabel),
-        datasets: [
-          {
-            label: "Average Running Weight",
-            data: points.map(r => r ? Number(r.average_running_weight) : null),
-            borderColor: "#e30613",
-            backgroundColor: "rgba(227,6,19,.06)",
-            borderWidth: 3,
-            spanGaps: true,
-            tension: 0.28,
-            pointRadius: 5,
-            pointHoverRadius: 9,
-            pointBackgroundColor: "#e30613",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2.5,
-            pointHoverBorderWidth: 3,
-            fill: false
-          },
-          {
-            label: "Spec",
-            data: points.map(r => r ? Number(r.spec) : null),
-            borderColor: "#0f172a",
-            backgroundColor: "#0f172a",
-            borderWidth: 2,
-            borderDash: [6, 4],
-            spanGaps: true,
-            tension: 0.2,
-            pointRadius: 3,
-            pointHoverRadius: 6,
-            pointBackgroundColor: "#0f172a",
-            pointBorderColor: "#ffffff",
-            pointBorderWidth: 2,
-            fill: false
-          },
-          {
-            label: "−2% Limit",
-            data: points.map(r =>
-              r && r.minus_2_percent != null ? Number(r.minus_2_percent) : null
-            ),
-            borderColor: "#f59e0b",
-            backgroundColor: "#f59e0b",
-            borderWidth: 1.8,
-            borderDash: [3, 3],
-            spanGaps: true,
-            tension: 0.2,
-            pointRadius: 2,
-            pointHoverRadius: 5,
-            pointBackgroundColor: "#f59e0b",
-            fill: false
-          },
-          {
-            label: "+2% Limit",
-            data: points.map(r =>
-              r && r.plus_2_percent != null ? Number(r.plus_2_percent) : null
-            ),
-            borderColor: "#2563eb",
-            backgroundColor: "#2563eb",
-            borderWidth: 1.8,
-            borderDash: [3, 3],
-            spanGaps: true,
-            tension: 0.2,
-            pointRadius: 2,
-            pointHoverRadius: 5,
-            pointBackgroundColor: "#2563eb",
-            fill: false
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        animation: {
-          duration: 900,
-          easing: "easeOutQuart"
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: {
-              color: "#64748b",
-              font: { weight: "600", size: 11.5 }
-            }
-          },
-          y: {
-            grid: { color: "#eef2f7" },
-            ticks: {
-              color: "#64748b",
-              font: { weight: "600", size: 11.5 }
-            },
-            title: {
-              display: true,
-              text: "Weight (kg)",
-              color: "#475569",
-              font: { weight: "700", size: 12 }
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            align: "end",
-            labels: {
-              usePointStyle: true,
-              pointStyle: "line",
-              boxWidth: 26,
-              padding: 18,
-              color: "#334155",
-              font: { weight: "700", size: 12 }
-            }
-          },
-          tooltip: {
-            backgroundColor: "#0b1220",
-            padding: 14,
-            cornerRadius: 10,
-            titleFont: { weight: "800", size: 13 },
-            bodyFont: { weight: "600", size: 12.5 },
-            bodySpacing: 6,
-            boxPadding: 6,
-            borderColor: "rgba(255,255,255,.08)",
-            borderWidth: 1
-          }
-        }
-      }
-    });
-  }
-
-  /* ---------- Table ---------- */
-  const tbody = document.getElementById("skuMonthTable");
-  if (tbody) {
-    tbody.innerHTML = "";
-
-    if (!selected.length) {
-      tbody.innerHTML =
-        '<tr><td colspan="6" class="empty-cell">No months selected.</td></tr>';
+  state.months.forEach((m, i) => {
+    const r = state.points[i];
+    if (!r) {
+      lines.push([formatMonthLabel(m), "No data", "", "", "", "", "", ""].join(","));
       return;
     }
+    const spec = r.spec == null ? null : Number(r.spec);
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
 
-    selected.forEach((m, i) => {
-      const r = points[i];
+    let dev = null, devPct = null, ok = null;
+    if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+      dev = run - spec;
+      devPct = (dev / spec) * 100;
+      ok = devPct >= -2 && devPct <= 2;
+    }
+    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
+      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+    }
 
-      if (!r) {
-        tbody.insertAdjacentHTML("beforeend",
-          '<tr class="missing-row">' +
-            '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
-            '<td colspan="5">No data</td>' +
-          '</tr>');
-        return;
-      }
+    lines.push([
+      formatMonthLabel(m),
+      spec == null ? "" : spec.toFixed(3),
+      run == null ? "" : run.toFixed(3),
+      dev == null ? "" : dev.toFixed(3),
+      devPct == null ? "" : devPct.toFixed(2),
+      lo == null ? "" : lo.toFixed(3),
+      hi == null ? "" : hi.toFixed(3),
+      ok === null ? "" : ok ? "Within limit" : "Out of limit"
+    ].join(","));
+  });
 
-      const spec = r.spec == null ? null : Number(r.spec);
-      const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
-      const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
-      const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  triggerDownload(blob, "JK-" + safeFileBase(state.sku) + "-running-weight.csv");
+}
 
-      let ok = null;
-      if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
-        ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
-      } else if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
-        const pct = ((run - spec) / spec) * 100;
-        ok = pct >= -2 && pct <= 2;
-      }
+/* =========================================================
+   SVG → PNG (for Word export)
+========================================================= */
+function svgToPng(svgEl, scale) {
+  return new Promise(function (resolve) {
+    if (!svgEl) return resolve(null);
+    try {
+      const w = Number(svgEl.getAttribute("width")) || svgEl.clientWidth || 800;
+      const h = Number(svgEl.getAttribute("height")) || svgEl.clientHeight || 360;
+      const clone = svgEl.cloneNode(true);
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const data = new XMLSerializer().serializeToString(clone);
+      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(data);
+      const img = new Image();
+      img.onload = function () {
+        const s = scale || 2;
+        const c = document.createElement("canvas");
+        c.width = Math.round(w * s);
+        c.height = Math.round(h * s);
+        const cx = c.getContext("2d");
+        cx.fillStyle = "#ffffff";
+        cx.fillRect(0, 0, c.width, c.height);
+        cx.drawImage(img, 0, 0, c.width, c.height);
+        try { resolve(c.toDataURL("image/png")); }
+        catch (e) { resolve(null); }
+      };
+      img.onerror = function () { resolve(null); };
+      img.src = url;
+    } catch (e) { resolve(null); }
+  });
+}
 
-      const badge = ok === null
-        ? '<span style="color:var(--faint);font-weight:700;">—</span>'
-        : ok
-          ? '<span class="badge ok">Within limit</span>'
-          : '<span class="badge bad">Out of limit</span>';
+/* Convert Chart.js canvas → PNG dataURL */
+function canvasToPng(canvasEl, scale) {
+  return new Promise(function (resolve) {
+    if (!canvasEl) return resolve(null);
+    try {
+      const w = canvasEl.width;
+      const h = canvasEl.height;
+      const s = scale || 1;
+      const c = document.createElement("canvas");
+      c.width = w * s;
+      c.height = h * s;
+      const cx = c.getContext("2d");
+      cx.fillStyle = "#ffffff";
+      cx.fillRect(0, 0, c.width, c.height);
+      cx.drawImage(canvasEl, 0, 0, c.width, c.height);
+      resolve(c.toDataURL("image/png"));
+    } catch (e) { resolve(null); }
+  });
+}
 
-      tbody.insertAdjacentHTML("beforeend",
-        '<tr class="' + (ok === false ? "row-out" : "") + '">' +
-          '<td>' + escapeHtml(formatMonthLabel(m)) + '</td>' +
-          '<td>' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
-          '<td>' + (run == null ? "—" : n(run, 3)) + '</td>' +
-          '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
-          '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
-          '<td>' + badge + '</td>' +
-        '</tr>');
-    });
+/* =========================================================
+   WORD EXPORT
+========================================================= */
+async function exportWord() {
+  if (!state.months.length) {
+    alert("Please upload data before exporting.");
+    return;
   }
+
+  const lineCanvas = document.getElementById("skuMonthlyChart");
+  const barCanvas  = document.getElementById("skuYearlyBarChart");
+  const lineImg = await canvasToPng(lineCanvas, 2);
+  const barImg  = await canvasToPng(barCanvas, 2);
+
+  const kpiRows = state.kpiData.map(function (k) {
+    return '<tr>' +
+      '<td style="border:1px solid #e5eaf2;padding:9px;background:#f8fafc;font-weight:700;color:#0b1220;">' + escapeHtml(k.label) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:9px;color:#b30510;font-weight:700;">' + escapeHtml(k.value) + ' ' + escapeHtml(k.unit) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:9px;color:#475569;">' + escapeHtml(k.sub) + '</td>' +
+    '</tr>';
+  }).join("");
+
+  let tableRows = "";
+  state.months.forEach(function (m, i) {
+    const r = state.points[i];
+    if (!r) {
+      tableRows += '<tr>' +
+        '<td style="border:1px solid #e5eaf2;padding:8px;font-weight:700;color:#0b1220;">' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+        '<td colspan="6" style="border:1px solid #e5eaf2;padding:8px;color:#94a3b8;font-style:italic;text-align:center;">No data</td>' +
+      '</tr>';
+      return;
+    }
+    const spec = r.spec == null ? null : Number(r.spec);
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+
+    let dev = null, devPct = null, ok = null;
+    if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+      dev = run - spec;
+      devPct = (dev / spec) * 100;
+      ok = devPct >= -2 && devPct <= 2;
+    }
+    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
+      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+    }
+
+    tableRows += '<tr>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;font-weight:700;color:#0b1220;">' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (run == null ? "—" : n(run, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' +
+        (dev == null ? "—" : signed(dev, 3) + (devPct == null ? "" : " (" + signed(devPct, 2) + "%)")) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:right;color:#475569;">' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+      '<td style="border:1px solid #e5eaf2;padding:8px;text-align:center;font-weight:700;color:' + (ok === false ? "#dc2626" : ok === true ? "#059669" : "#64748b") + ';">' +
+        (ok === null ? "—" : ok ? "Within limit" : "Out of limit") + '</td>' +
+    '</tr>';
+  });
+
+  const generated = new Date().toLocaleString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+  });
+
+  const html =
+    '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+          'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+          'xmlns="http://www.w3.org/TR/REC-html40">' +
+    '<head><meta charset="utf-8">' +
+    '<title>JK Tyre · SKU Monthly Running Weight Analysis</title>' +
+    '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->' +
+    '<style>' +
+      '@page { size: A4 landscape; margin: 1.6cm 1.4cm; }' +
+      'body { font-family: "Inter", Calibri, Arial, sans-serif; background:#ffffff; color:#1e293b; font-size:10.5pt; }' +
+      'h1 { color:#b30510; font-size:20pt; margin:0 0 4pt; letter-spacing:-.4pt; }' +
+      'h2 { color:#0b1220; font-size:13pt; margin:18pt 0 8pt; padding-bottom:4pt; border-bottom:1.5pt solid #e30613; }' +
+      'p  { margin:4pt 0; line-height:1.55; color:#475569; }' +
+      'table { border-collapse:collapse; width:100%; margin:8pt 0 4pt; background:#ffffff; }' +
+      'th { background:#f8fafc; border:1px solid #e5eaf2; padding:9px; text-align:left; font-size:9.5pt; color:#64748b; text-transform:uppercase; letter-spacing:.4pt; }' +
+      'td { font-size:10pt; vertical-align:middle; }' +
+      '.meta-box { background:#f8fafc; border:1px solid #e5eaf2; border-left:4px solid #e30613; padding:11px 15px; margin:10pt 0 16pt; }' +
+      '.meta-box strong { color:#b30510; }' +
+      '.chart-img { max-width:100%; height:auto; border:1px solid #e5eaf2; margin:4pt 0; border-radius:6pt; }' +
+      '.footer { margin-top:22pt; padding-top:8pt; border-top:1px solid #e5eaf2; font-size:8.5pt; color:#94a3b8; text-align:center; }' +
+    '</style></head><body>' +
+
+    '<h1>JK Tyre · SKU Monthly Running Weight Analysis</h1>' +
+    '<p style="color:#64748b;font-size:10pt;margin:0 0 12pt;">Month-wise Spec vs Average Running Weight</p>' +
+
+    '<div class="meta-box">' +
+      '<p><strong>SKU / Size:</strong> ' + escapeHtml(state.sku || "—") + '</p>' +
+      '<p><strong>Weight Tolerance:</strong> ±2%</p>' +
+      '<p><strong>Months Covered:</strong> ' + state.points.filter(Boolean).length + ' of ' + state.months.length + '</p>' +
+      '<p><strong>Generated:</strong> ' + escapeHtml(generated) + '</p>' +
+    '</div>' +
+
+    '<h2>1. Key Performance Indicators</h2>' +
+    '<table><thead><tr>' +
+      '<th style="width:28%;">Metric</th><th style="width:24%;">Value</th><th>Detail</th>' +
+    '</tr></thead><tbody>' + kpiRows + '</tbody></table>' +
+
+    (lineImg ? '<h2>2. Monthly Trend · Spec vs Running Weight</h2>' +
+               '<img src="' + lineImg + '" class="chart-img" alt="Monthly Trend">' : "") +
+
+    (barImg ? '<h2>3. Monthly Average vs Full-Year Average</h2>' +
+              '<img src="' + barImg + '" class="chart-img" alt="Monthly Average">' : "") +
+
+    '<h2>4. Month-wise Detail</h2>' +
+    '<table><thead><tr>' +
+      '<th>Month</th>' +
+      '<th style="text-align:right;">Spec (kg)</th>' +
+      '<th style="text-align:right;">Avg Running Weight (kg)</th>' +
+      '<th style="text-align:right;">Deviation</th>' +
+      '<th style="text-align:right;">Lower (−2%)</th>' +
+      '<th style="text-align:right;">Upper (+2%)</th>' +
+      '<th style="text-align:center;">Status</th>' +
+    '</tr></thead><tbody>' + tableRows + '</tbody></table>' +
+
+    '<p style="font-size:9pt;color:#94a3b8;margin-top:12pt;">' +
+      'Supplied Spec, Actual, bucket counts, Total tyres and % adher. values are displayed ' +
+      'exactly as received — no recalculation is performed. Missing months are shown as ' +
+      '"No data" and are excluded from all averages.' +
+    '</p>' +
+
+    '<div class="footer">JK Tyre · SKU Monthly Running Weight Analysis · ' +
+      'Supplied data is displayed as-is without recalculation.</div>' +
+
+    '</body></html>';
+
+  const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+  triggerDownload(blob, "JK-" + safeFileBase(state.sku) + "-running-weight.doc");
+}
+
+/* =========================================================
+   PDF EXPORT (via printable iframe)
+========================================================= */
+function exportPdf() {
+  if (!state.months.length) {
+    alert("Please upload data before exporting.");
+    return;
+  }
+
+  const lineCanvas = document.getElementById("skuMonthlyChart");
+  const barCanvas  = document.getElementById("skuYearlyBarChart");
+  const lineImg = lineCanvas ? lineCanvas.toDataURL("image/png", 1.0) : null;
+  const barImg  = barCanvas ? barCanvas.toDataURL("image/png", 1.0) : null;
+
+  const kpiRows = state.kpiData.map(function (k) {
+    return '<tr>' +
+      '<td class="k">' + escapeHtml(k.label) + '</td>' +
+      '<td class="v">' + escapeHtml(k.value) + ' ' + escapeHtml(k.unit) + '</td>' +
+      '<td class="d">' + escapeHtml(k.sub) + '</td>' +
+    '</tr>';
+  }).join("");
+
+  let tableRows = "";
+  state.months.forEach(function (m, i) {
+    const r = state.points[i];
+    if (!r) {
+      tableRows += '<tr class="miss"><td>' + escapeHtml(formatMonthLabel(m)) + '</td><td colspan="6">No data</td></tr>';
+      return;
+    }
+    const spec = r.spec == null ? null : Number(r.spec);
+    const run = r.average_running_weight == null ? null : Number(r.average_running_weight);
+    const lo = r.minus_2_percent == null ? null : Number(r.minus_2_percent);
+    const hi = r.plus_2_percent == null ? null : Number(r.plus_2_percent);
+
+    let dev = null, devPct = null, ok = null;
+    if (Number.isFinite(run) && Number.isFinite(spec) && spec !== 0) {
+      dev = run - spec;
+      devPct = (dev / spec) * 100;
+      ok = devPct >= -2 && devPct <= 2;
+    }
+    if (Number.isFinite(run) && Number.isFinite(lo) && Number.isFinite(hi)) {
+      ok = run >= Math.min(lo, hi) && run <= Math.max(lo, hi);
+    }
+
+    tableRows += '<tr class="' + (ok === false ? "out" : "") + '">' +
+      '<td class="m">' + escapeHtml(formatMonthLabel(m)) + '</td>' +
+      '<td>' + (spec == null ? "—" : n(spec, 3)) + '</td>' +
+      '<td>' + (run == null ? "—" : n(run, 3)) + '</td>' +
+      '<td>' + (dev == null ? "—" : signed(dev, 3) + (devPct == null ? "" : " (" + signed(devPct, 2) + "%)")) + '</td>' +
+      '<td>' + (lo == null ? "—" : n(lo, 3)) + '</td>' +
+      '<td>' + (hi == null ? "—" : n(hi, 3)) + '</td>' +
+      '<td class="' + (ok === true ? "ok" : ok === false ? "bad" : "") + '">' +
+        (ok === null ? "—" : ok ? "Within limit" : "Out of limit") + '</td>' +
+    '</tr>';
+  });
+
+  const generated = new Date().toLocaleString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
+  });
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+    '<title>JK Tyre · SKU Monthly Running Weight Analysis</title>' +
+    '<style>' +
+      '@page { size: A4 landscape; margin: 11mm; }' +
+      '* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }' +
+      'body { margin:0; font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;' +
+             ' color:#1e293b; font-size:10pt; background:#fcfbff; padding:14mm 10mm; }' +
+      '.rpt-head { display:flex; justify-content:space-between; align-items:flex-end;' +
+                  ' gap:16px; flex-wrap:wrap; padding-bottom:12px; margin-bottom:16px;' +
+                  ' border-bottom:2.5px solid #e30613; }' +
+      '.rpt-kicker { font-size:8.5pt; font-weight:800; letter-spacing:1.4px; text-transform:uppercase;' +
+                    ' color:#b30510; margin-bottom:5px; }' +
+      '.rpt-title { font-size:17pt; font-weight:800; color:#0b1220; letter-spacing:-.3px; line-height:1.2; }' +
+      '.rpt-sub { font-size:9.5pt; color:#64748b; margin-top:5px; font-weight:600; }' +
+      '.rpt-meta { text-align:right; font-size:9pt; color:#64748b; font-weight:600; line-height:1.6; }' +
+      '.rpt-meta b { color:#b30510; font-weight:800; }' +
+      '.info-box { background:#f8fafc; border:1px solid #e5eaf2; border-left:4px solid #e30613;' +
+                  ' padding:9px 13px; margin:0 0 16px; font-size:9.5pt; line-height:1.65; color:#1e293b; }' +
+      '.info-box b { color:#b30510; }' +
+      'h2 { font-size:11.5pt; font-weight:800; color:#0b1220; margin:18px 0 8px;' +
+           ' padding-bottom:5px; border-bottom:1.5px solid #e30613; letter-spacing:-.1px; }' +
+      'table { border-collapse:collapse; width:100%; margin:6px 0 4px; background:#ffffff; }' +
+      'th { background:#f8fafc; border:1px solid #e5eaf2; padding:7px 8px; text-align:center;' +
+           ' font-size:8.5pt; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.5px; }' +
+      'td { border:1px solid #eef2f7; padding:6px 8px; text-align:center; font-size:9.5pt; color:#1e293b; }' +
+      'td.k { background:#f8fafc; text-align:left; font-weight:700; color:#0b1220; }' +
+      'td.v { font-weight:800; color:#b30510; }' +
+      'td.d { text-align:left; color:#64748b; }' +
+      'td.m { font-weight:800; color:#0b1220; }' +
+      'td.ok { color:#059669; font-weight:800; }' +
+      'td.bad { color:#dc2626; font-weight:800; }' +
+      'tr.out td { background:#fef2f2; }' +
+      'tr.miss td { background:#fdfbf8; color:#94a3b8; font-style:italic; }' +
+      '.chart-block { background:#ffffff; border:1px solid #e5eaf2; border-radius:8px; padding:8px; margin:6px 0 2px;' +
+                     ' page-break-inside:avoid; text-align:center; }' +
+      '.chart-block img { max-width:100%; height:auto; display:block; margin:0 auto; }' +
+      '.note { font-size:8.5pt; color:#94a3b8; margin-top:10px; line-height:1.6; }' +
+      '.rpt-foot { margin-top:18px; padding-top:8px; border-top:1px solid #e5eaf2;' +
+                  ' font-size:8pt; color:#94a3b8; text-align:center; font-weight:600; }' +
+      '@media print { h2 { page-break-after: avoid; } .chart-block { page-break-inside: avoid; } }' +
+    '</style></head><body>' +
+
+    '<div class="rpt-head">' +
+      '<div>' +
+        '<div class="rpt-kicker">JK Tyre · Report</div>' +
+        '<div class="rpt-title">SKU Monthly Running Weight Analysis</div>' +
+        '<div class="rpt-sub">' + escapeHtml(state.sku || "—") + ' · Tolerance: ±2%</div>' +
+      '</div>' +
+      '<div class="rpt-meta">Generated<br><b>' + escapeHtml(generated) + '</b></div>' +
+    '</div>' +
+
+    '<div class="info-box">' +
+      '<b>Months covered:</b> ' + state.points.filter(Boolean).length + ' of ' + state.months.length +
+      ' &nbsp;&nbsp;|&nbsp;&nbsp; <b>Weight tolerance:</b> ±2%' +
+      ' &nbsp;&nbsp;|&nbsp;&nbsp; <b>SKU / Size:</b> ' + escapeHtml(state.sku || "—") +
+    '</div>' +
+
+    '<h2>1. Key Performance Indicators</h2>' +
+    '<table><thead><tr><th style="width:26%;">Metric</th><th style="width:24%;">Value</th>' +
+    '<th>Detail</th></tr></thead><tbody>' + kpiRows + '</tbody></table>' +
+
+    (lineImg
+      ? '<h2>2. Monthly Trend · Spec vs Running Weight</h2>' +
+        '<div class="chart-block"><img src="' + lineImg + '" alt="Monthly Trend"></div>'
+      : "") +
+
+    (barImg
+      ? '<h2>3. Monthly Average vs Full-Year Average</h2>' +
+        '<div class="chart-block"><img src="' + barImg + '" alt="Monthly Average"></div>'
+      : "") +
+
+    '<h2>4. Month-wise Detail</h2>' +
+    '<table><thead><tr>' +
+      '<th>Month</th>' +
+      '<th>Spec (kg)</th>' +
+      '<th>Avg Running Weight (kg)</th>' +
+      '<th>Deviation</th>' +
+      '<th>Lower (−2%)</th>' +
+      '<th>Upper (+2%)</th>' +
+      '<th>Status</th>' +
+    '</tr></thead><tbody>' + tableRows + '</tbody></table>' +
+
+    '<div class="note">Supplied Spec, Actual, bucket counts, Total tyres and % adher. values are ' +
+      'displayed exactly as received — no recalculation is performed. Missing months are shown as ' +
+      '"No data" and are excluded from all averages.</div>' +
+
+    '<div class="rpt-foot">JK Tyre · SKU Monthly Running Weight Analysis · ' +
+      'Supplied data is displayed as-is without recalculation.</div>' +
+
+    '</body></html>';
+
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  setTimeout(function () {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (err) {
+      console.error("PDF export failed:", err);
+      alert("PDF export failed: " + (err && err.message ? err.message : err));
+    }
+    setTimeout(function () {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, 2000);
+  }, 500);
 }
 
 /* =========================================================
@@ -1698,20 +2209,17 @@ function renderSkuAnalysis() {
 ========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ---------- Header date chip ---------- */
+  /* Header date */
   const chip = document.getElementById("todayChip");
   if (chip) {
     const valueEl = chip.querySelector("strong");
     if (valueEl) {
       valueEl.textContent = new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
+        day: "2-digit", month: "short", year: "numeric"
       });
     }
   }
 
-  /* ---------- Elements ---------- */
   const form = document.getElementById("uploadForm");
   const fileInput = document.getElementById("file");
   const status = document.getElementById("status");
@@ -1720,40 +2228,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadBtn = document.getElementById("uploadBtn");
   const emptyState = document.getElementById("emptyState");
   const analysisBody = document.getElementById("analysisBody");
+  const exportGroup = document.getElementById("exportGroup");
 
-  /* ---------- File name display ---------- */
   function showFileName() {
     if (!fileName || !fileInput) return;
     if (fileInput.files && fileInput.files.length) {
       const f = fileInput.files[0];
-      const kb = (f.size / 1024).toFixed(1);
-      fileName.textContent = f.name + "  ·  " + kb + " KB";
+      fileName.textContent = f.name + "  ·  " + (f.size / 1024).toFixed(1) + " KB";
       fileName.classList.add("show");
     } else {
       fileName.classList.remove("show");
     }
   }
-
   fileInput?.addEventListener("change", showFileName);
 
-  /* ---------- Drag & drop ---------- */
   if (dropZone && fileInput) {
     ["dragenter", "dragover"].forEach(ev => {
       dropZone.addEventListener(ev, e => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         dropZone.classList.add("dragover");
       });
     });
-
     ["dragleave", "drop"].forEach(ev => {
       dropZone.addEventListener(ev, e => {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         dropZone.classList.remove("dragover");
       });
     });
-
     dropZone.addEventListener("drop", e => {
       const files = e.dataTransfer && e.dataTransfer.files;
       if (files && files.length) {
@@ -1761,27 +2262,37 @@ document.addEventListener("DOMContentLoaded", () => {
         showFileName();
       }
     });
-
     dropZone.addEventListener("click", e => {
       if (e.target.closest("#uploadBtn")) return;
       fileInput.click();
     });
   }
 
-  /* ---------- SKU filters ---------- */
-  document.getElementById("applySkuFilter")
-    ?.addEventListener("click", () => renderSkuAnalysis());
+  /* Filters */
+  document.getElementById("applySkuFilter")?.addEventListener("click", renderSkuAnalysis);
+  document.getElementById("skuSelect")?.addEventListener("change", renderSkuAnalysis);
+  document.getElementById("fromMonth")?.addEventListener("change", renderSkuAnalysis);
+  document.getElementById("toMonth")?.addEventListener("change", renderSkuAnalysis);
 
-  document.getElementById("skuSelect")
-    ?.addEventListener("change", () => renderSkuAnalysis());
+  /* Export buttons */
+  document.getElementById("exportCsvBtn")?.addEventListener("click", () => {
+    if (state.busy) return;
+    exportCsv();
+  });
+  document.getElementById("exportWordBtn")?.addEventListener("click", async () => {
+    if (state.busy) return;
+    setBusy(true, "word");
+    try { await exportWord(); }
+    catch (err) { console.error(err); alert("Word export failed: " + (err && err.message ? err.message : err)); }
+    finally { setTimeout(() => setBusy(false), 400); }
+  });
+  document.getElementById("exportPdfBtn")?.addEventListener("click", () => {
+    if (state.busy) return;
+    setBusy(true, "pdf");
+    try { exportPdf(); }
+    finally { setTimeout(() => setBusy(false), 900); }
+  });
 
-  document.getElementById("fromMonth")
-    ?.addEventListener("change", () => renderSkuAnalysis());
-
-  document.getElementById("toMonth")
-    ?.addEventListener("change", () => renderSkuAnalysis());
-
-  /* ---------- Upload ---------- */
   if (!form) return;
 
   form.addEventListener("submit", async e => {
@@ -1805,25 +2316,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const fd = new FormData();
       fd.append("file", fileInput.files[0]);
 
-      const res = await fetch("/upload", {
-        method: "POST",
-        body: fd
-      });
-
+      const res = await fetch("/upload", { method: "POST", body: fd });
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(
-          data.message || data.error || "Failed to process Excel."
-        );
+        throw new Error(data.message || data.error || "Failed to process Excel.");
       }
 
       dashboardData = data;
-
       populateFilters(data);
 
       if (emptyState) emptyState.classList.add("hidden");
       if (analysisBody) analysisBody.classList.remove("hidden");
+      if (exportGroup) exportGroup.classList.remove("hidden");
 
       requestAnimationFrame(() => renderSkuAnalysis());
 
@@ -1841,7 +2346,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
-
 });
 </script>
 
