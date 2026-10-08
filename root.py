@@ -22,7 +22,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 
 app = Flask(__name__)
 
-MASTER_FILE = r"E:\desktop_backuo\2026_jk_dashbord\Master_SKU.xlsx"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MASTER_FILE = os.path.join(BASE_DIR, "Master_SKU.xlsx")
 
 ALLOWED_EXTENSIONS = {"xlsx", "xls", "csv"}
 
@@ -218,52 +219,101 @@ def normalize_sku_value(value):
 
 
 def parse_month_value(value):
-
+    """Normalize month labels while supporting both YYYY-MM and workbook labels such as 1-01."""
     if pd.isna(value):
-
         return None
 
     text = str(value).strip()
-
     if not text or text.lower() in {"nan", "none", "nat"}:
-
         return None
 
+    # Important for the Ubuntu workbook: sheet names such as 1-01, 1-02,
+    # 1-03 are valid month labels in this project.  pandas on Ubuntu can
+    # return NaT for these labels, so handle them explicitly before calling
+    # pd.to_datetime().
+    legacy = re.fullmatch(r"(\d+)-(\d{1,2})", text)
+    if legacy:
+        year_part = int(legacy.group(1))
+        month_part = int(legacy.group(2))
+        if 1 <= month_part <= 12:
+            return f"{year_part}-{month_part:02d}"
+
     dt = pd.to_datetime(text, errors="coerce")
-
     if pd.notna(dt):
-
         return dt.strftime("%Y-%m")
 
     return text
 
 
+def month_parts(value):
+    """Return (year, month) for supported month labels, otherwise (None, None)."""
+    parsed = parse_month_value(value)
+    if not parsed:
+        return None, None
 
+    match = re.fullmatch(r"(\d{4})-(\d{2})", parsed)
+    if match:
+        return int(match.group(1)), int(match.group(2))
+
+    match = re.fullmatch(r"(\d+)-(\d{2})", parsed)
+    if match:
+        year_part = int(match.group(1))
+        month_part = int(match.group(2))
+        if 1 <= month_part <= 12:
+            return year_part, month_part
+
+    return None, None
+
+
+def month_sort_value(value):
+    """Sortable numeric key for YYYY-MM and labels such as 1-01."""
+    year, month = month_parts(value)
+    if year is None or month is None:
+        return None
+    return year * 12 + month
 
 
 def continuous_months(month_values):
-
+    """Return all months between the first and last supplied month label."""
     cleaned = []
-
     for value in month_values:
-
         parsed = parse_month_value(value)
-
         if parsed and parsed not in cleaned:
-
             cleaned.append(parsed)
 
+    if not cleaned:
+        return []
+
+    # Normal four-digit calendar labels.
     iso = [x for x in cleaned if re.fullmatch(r"\d{4}-\d{2}", x)]
-
     if len(iso) >= 2:
-
         start = pd.Period(min(iso), freq="M")
-
         end = pd.Period(max(iso), freq="M")
-
         return [str(x) for x in pd.period_range(start, end, freq="M")]
 
-    return cleaned
+    # Workbook labels such as 1-01, 1-02, ... . Treat the first number as
+    # the year/series number and the second as the month number. This keeps
+    # the original workbook naming while allowing missing months to be shown.
+    legacy = []
+    for x in cleaned:
+        match = re.fullmatch(r"(\d+)-(\d{2})", x)
+        if match and 1 <= int(match.group(2)) <= 12:
+            legacy.append((int(match.group(1)), int(match.group(2))))
+
+    if legacy and len(legacy) == len(cleaned):
+        start = min(legacy)
+        end = max(legacy)
+        result = []
+        y, m = start
+        while (y, m) <= end:
+            result.append(f"{y}-{m:02d}")
+            m += 1
+            if m > 12:
+                y += 1
+                m = 1
+        return result
+
+    return sorted(cleaned, key=lambda x: (month_sort_value(x) is None, month_sort_value(x) or 0, x))
 
 
 
@@ -579,9 +629,9 @@ def build_monthly_summary(df):
 
     work["sku_sort"] = work["sku"].fillna("").astype(str).str.casefold()
 
-    work["month_period"] = pd.to_datetime(work["month_sort"] + "-01", errors="coerce")
+    work["month_order"] = work["month_sort"].map(month_sort_value)
 
-    work = work.sort_values(["month_period", "month_sort", "sku_sort", "source_row"], kind="stable", na_position="last")
+    work = work.sort_values(["month_order", "month_sort", "sku_sort", "source_row"], kind="stable", na_position="last")
 
     return [
 
@@ -738,55 +788,56 @@ def build_sku_month_summary(df):
 
 
 def build_monthly_average_chart(df):
-    """Average supplied Actual (kg) by month."""
+    """Average supplied Actual (kg) by month, including workbook labels such as 1-01."""
     if df.empty:
         return []
+
     work = df.copy()
     work["actual_num"] = pd.to_numeric(work["actual"], errors="coerce")
-    work["month_period"] = pd.to_datetime(
-        work["month"].astype(str) + "-01", errors="coerce"
-    )
-    work = work.dropna(subset=["actual_num", "month_period"])
+    work["month_order"] = work["month"].map(month_sort_value)
+    work = work.dropna(subset=["actual_num", "month_order"])
     if work.empty:
         return []
+
     grouped = (
-        work.groupby("month_period", as_index=False)["actual_num"]
+        work.groupby(["month", "month_order"], as_index=False)["actual_num"]
         .mean()
-        .sort_values("month_period")
+        .sort_values("month_order")
     )
+
     return [
         {
-            "month": x.strftime("%Y-%m"),
-            "average_running_weight": float(y),
+            "month": str(month),
+            "average_running_weight": float(value),
         }
-        for x, y in zip(grouped["month_period"], grouped["actual_num"])
+        for month, value in zip(grouped["month"], grouped["actual_num"])
     ]
 
 
 def build_yearly_average_chart(df):
-    """Average supplied Actual (kg) by calendar year."""
+    """Average supplied Actual (kg) by year/series for both YYYY-MM and 1-01 style labels."""
     if df.empty:
         return []
+
     work = df.copy()
     work["actual_num"] = pd.to_numeric(work["actual"], errors="coerce")
-    work["month_period"] = pd.to_datetime(
-        work["month"].astype(str) + "-01", errors="coerce"
-    )
-    work = work.dropna(subset=["actual_num", "month_period"])
+    work["year"] = work["month"].map(lambda x: month_parts(x)[0])
+    work = work.dropna(subset=["actual_num", "year"])
     if work.empty:
         return []
-    work["year"] = work["month_period"].dt.year
+
     grouped = (
         work.groupby("year", as_index=False)["actual_num"]
         .mean()
         .sort_values("year")
     )
+
     return [
         {
-            "year": int(x),
-            "average_running_weight": float(y),
+            "year": int(year),
+            "average_running_weight": float(value),
         }
-        for x, y in zip(grouped["year"], grouped["actual_num"])
+        for year, value in zip(grouped["year"], grouped["actual_num"])
     ]
 
 
@@ -1428,9 +1479,9 @@ def analyze():
 
         chart_work = valid.copy()
 
-        chart_work["month_period"] = pd.to_datetime(chart_work["month"].astype(str) + "-01", errors="coerce")
+        chart_work["month_order"] = chart_work["month"].map(month_sort_value)
 
-        chart_work = chart_work.sort_values(["month_period", "month", "sku", "source_row"], kind="stable", na_position="last")
+        chart_work = chart_work.sort_values(["month_order", "month", "sku", "source_row"], kind="stable", na_position="last")
 
         for _, r in chart_work.iterrows():
 
