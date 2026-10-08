@@ -227,10 +227,29 @@ def parse_month_value(value):
     if not text or text.lower() in {"nan", "none", "nat"}:
         return None
 
-    # Important for the Ubuntu workbook: sheet names such as 1-01, 1-02,
-    # 1-03 are valid month labels in this project.  pandas on Ubuntu can
-    # return NaT for these labels, so handle them explicitly before calling
-    # pd.to_datetime().
+    # Workbook month sheets are named Jan, Feb, Mar ... Dec.
+    # Treat these as calendar months in the current dashboard year (2026)
+    # instead of allowing pandas to interpret the text using an implicit year.
+    month_names = {
+        "jan": 1, "january": 1,
+        "feb": 2, "february": 2,
+        "mar": 3, "march": 3,
+        "apr": 4, "april": 4,
+        "may": 5,
+        "jun": 6, "june": 6,
+        "jul": 7, "july": 7,
+        "aug": 8, "august": 8,
+        "sep": 9, "sept": 9, "september": 9,
+        "oct": 10, "october": 10,
+        "nov": 11, "november": 11,
+        "dec": 12, "december": 12,
+    }
+    month_key = re.sub(r"\\s+", "", text.lower()).rstrip(".")
+    if month_key in month_names:
+        return f"2026-{month_names[month_key]:02d}"
+
+    # Also support explicit labels such as 2026-01 and the older workbook
+    # labels such as 1-01.
     legacy = re.fullmatch(r"(\d+)-(\d{1,2})", text)
     if legacy:
         year_part = int(legacy.group(1))
